@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: #08080c;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Floating animation (keep if you still use it somewhere) */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(-2deg);
+  }
+
+  50% {
+    transform: translateY(-18px) rotate(2deg);
+  }
+}
+
+/* Slider UX */
+input[type="range"] {
+  cursor: pointer;
+}
