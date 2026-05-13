@@ -12,16 +12,23 @@ export default function Home() {
 
       <section
         id="home"
-        className="flex min-h-[80vh] items-center justify-center px-8 pt-24"
+        className="flex min-h-[80vh] items-center justify-center px-8 pt-28"
       >
         <div className="grid w-full max-w-7xl grid-cols-1 items-stretch gap-8 md:grid-cols-[0.9fr_1.1fr]">
           <IntroSection />
           <MusicPlayer />
         </div>
       </section>
+
       <TechMarquee />
-      <ProjectSection />
-      <ContactSection />
+
+      <section id="projects">
+        <ProjectSection />
+      </section>
+
+      <section id="contact">
+        <ContactSection />
+      </section>
     </main>
   );
 }

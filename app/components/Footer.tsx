@@ -11,7 +11,7 @@ export default function Footer() {
             href="https://github.com/AurelioAlfons"
             target="_blank"
             rel="noopener noreferrer"
-            className="transition duration-300 hover:scale-125 hover:text-yellow-400"
+            className="transition duration-300 hover:scale-125 hover:text-[#7f31fd]"
           >
             <FaGithub />
           </a>
@@ -20,14 +20,14 @@ export default function Footer() {
             href="https://www.linkedin.com/in/aurelio-alfons/"
             target="_blank"
             rel="noopener noreferrer"
-            className="transition duration-300 hover:scale-125 hover:text-yellow-400"
+            className="transition duration-300 hover:scale-125 hover:text-[#7f31fd]"
           >
             <FaLinkedin />
           </a>
 
           <a
             href="mailto:yuroalfons0407@gmail.com"
-            className="transition duration-300 hover:scale-125 hover:text-yellow-400"
+            className="transition duration-300 hover:scale-125 hover:text-[#7f31fd]"
           >
             <FaEnvelope />
           </a>
