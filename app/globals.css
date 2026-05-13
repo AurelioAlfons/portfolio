@@ -27,3 +27,16 @@ body {
 input[type="range"] {
   cursor: pointer;
 }
+
+@keyframes smooth-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-smooth-marquee {
+  animation: smooth-marquee 35s linear infinite;
+}

@@ -25,16 +25,21 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="relative min-h-screen overflow-x-hidden bg-black text-white">
+        
+        {/* BACKGROUND */}
         <iframe
           src="/fluid/index.html"
           className="fixed inset-0 z-0 h-screen w-screen border-none"
         />
 
+        {/* OPTIONAL OVERLAY */}
         <div className="pointer-events-none fixed inset-0 z-10" />
 
-        <div className="pointer-events-auto relative z-20 min-h-screen">
+        {/* CONTENT */}
+        <div className="pointer-events-none relative z-20 min-h-screen">
           {children}
         </div>
+
       </body>
     </html>
   );
