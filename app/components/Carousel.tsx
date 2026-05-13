@@ -9,8 +9,8 @@ type CarouselItemType = {
   id: number;
   title: string;
   description: string;
-  website: string;
-  linkedin: string;
+  link: string;
+  image: string;
 };
 
 const DRAG_BUFFER = 0;
@@ -60,28 +60,19 @@ function CarouselItem({
       transition={transition}
     >
       <div className="carousel-preview">
-        <iframe
-          src={item.website}
-          title={item.title}
-          className="h-full w-full border-none"
-          loading="lazy"
-        />
+        <a href={item.link} target="_blank" rel="noreferrer">
+          <img
+            src={item.image}
+            alt={item.title}
+            className="h-full w-full cursor-pointer object-cover"
+          />
+        </a>
       </div>
 
       <div className="carousel-item-content">
         <h3 className="carousel-item-title">{item.title}</h3>
 
         <p className="carousel-item-description">{item.description}</p>
-
-        <div className="carousel-buttons">
-          <a href={item.website} target="_blank" rel="noreferrer">
-            Open Website
-          </a>
-
-          <a href={item.linkedin} target="_blank" rel="noreferrer">
-            LinkedIn Post
-          </a>
-        </div>
       </div>
     </motion.div>
   );

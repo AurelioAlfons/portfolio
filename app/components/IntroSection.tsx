@@ -11,7 +11,7 @@ export default function IntroSection() {
       <p className="mt-6 max-w-xl text-lg leading-8 text-gray-300">
         I’m a junior software developer. I like to build cool projects and
         design websites. I also enjoy music. Feel free to send me a message,
-        keen to collaborate or just chat!
+        keen to collaborate.
       </p>
 
     <div className="mt-8 flex gap-4">
