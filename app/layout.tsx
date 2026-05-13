@@ -32,7 +32,7 @@ export default function RootLayout({
 
         <div className="pointer-events-none fixed inset-0 z-10" />
 
-        <div className="pointer-events-none relative z-20 min-h-screen">
+        <div className="pointer-events-auto relative z-20 min-h-screen">
           {children}
         </div>
       </body>
