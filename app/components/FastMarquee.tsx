@@ -10,18 +10,32 @@ import {
   SiJavascript,
   SiHtml5,
   SiCss,
+  SiFlutter,
+  SiPostgresql,
+  SiVercel,
+  SiSalesforce,
+  SiMongodb,
+  SiOpenjdk,
+  SiR,
 } from "react-icons/si";
 
 const techs = [
-  { name: "MySQL", icon: SiMysql, color: "text-cyan-500" },
+  { name: "Flutter", icon: SiFlutter, color: "text-sky-400" },
   { name: "React", icon: SiReact, color: "text-cyan-400" },
-  { name: "TypeScript", icon: SiTypescript, color: "text-blue-500" },
   { name: "Next.js", icon: SiNextdotjs, color: "text-white" },
-  { name: "TailwindCSS", icon: SiTailwindcss, color: "text-sky-400" },
-  { name: "Python", icon: SiPython, color: "text-yellow-400" },
+  { name: "TypeScript", icon: SiTypescript, color: "text-blue-500" },
   { name: "JavaScript", icon: SiJavascript, color: "text-yellow-300" },
+  { name: "Python", icon: SiPython, color: "text-yellow-400" },
+  { name: "Java", icon: SiOpenjdk, color: "text-red-500" },
+  { name: "R", icon: SiR, color: "text-blue-400" },
   { name: "HTML", icon: SiHtml5, color: "text-orange-500" },
   { name: "CSS", icon: SiCss, color: "text-blue-500" },
+  { name: "TailwindCSS", icon: SiTailwindcss, color: "text-sky-400" },
+  { name: "MySQL", icon: SiMysql, color: "text-cyan-500" },
+  { name: "PostgreSQL", icon: SiPostgresql, color: "text-blue-400" },
+  { name: "MongoDB", icon: SiMongodb, color: "text-green-500" },
+  { name: "Vercel", icon: SiVercel, color: "text-white" },
+  { name: "Salesforce", icon: SiSalesforce, color: "text-sky-500" },
 ];
 
 export default function TechMarquee() {
@@ -42,7 +56,7 @@ export default function TechMarquee() {
             return (
               <div
                 key={`${tech.name}-${index}`}
-                className="group flex items-center gap-3 pr-20 text-4xl font-semibold"
+                className="group flex items-center gap-3 pr-20 text-3xl font-semibold"
               >
                 <Icon
                   className={`text-3xl ${tech.color} opacity-70 transition-all duration-500 ease-out group-hover:scale-110 group-hover:opacity-100`}

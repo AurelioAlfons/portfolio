@@ -2,7 +2,7 @@
 
 export default function MusicPlayer() {
   return (
-    <div className="flex h-full flex-col justify-center rounded-3xl border border-white/10 bg-black/55 p-4 shadow-2xl backdrop-blur-md">
+    <div className="pointer-events-auto flex h-full flex-col justify-center rounded-3xl border border-white/10 bg-black/55 p-4 shadow-2xl backdrop-blur-md">
       
       <p className="text-sm uppercase tracking-[0.3em] text-gray-400 px-4 pt-4">
         Now Playing
@@ -15,7 +15,7 @@ export default function MusicPlayer() {
           height="100%"
           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
           loading="lazy"
-          className="rounded-2xl"
+          className="pointer-events-auto rounded-2xl"
         />
       </div>
 

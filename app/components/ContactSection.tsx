@@ -43,10 +43,12 @@ export default function ContactSection() {
   return (
     <section
       id="contact"
-      className="flex h-screen flex-col justify-between overflow-hidden px-8 py-27 text-white"
+      className="relative z-30 flex h-screen flex-col justify-between overflow-hidden px-8 py-28 text-white"
     >
       <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-12 md:grid-cols-[0.9fr_1.1fr]">
-        <div className="pointer-events-auto mt-10 max-w-xl">
+        
+        {/* FORM */}
+        <div className="pointer-events-auto relative z-40 mt-10 max-w-xl">
           <div className="rounded-3xl border border-white/10 bg-black/40 p-8 shadow-[0_0_40px_rgba(0,0,0,0.6)] backdrop-blur-lg">
 
             <h2 className="text-5xl font-bold">Contact</h2>
@@ -55,7 +57,7 @@ export default function ContactSection() {
               Have a question or a project in mind? Feel free to reach out.
             </p>
 
-            <form onSubmit={handleFormSubmit}>
+            <form onSubmit={handleFormSubmit} className="pointer-events-auto">
               <input
                 type="email"
                 name="email"
@@ -96,10 +98,14 @@ export default function ContactSection() {
           </div>
         </div>
 
+        {/* RIGHT SIDE EMPTY */}
         <div className="hidden md:block" />
       </div>
 
-      <Footer />
+      {/* FOOTER */}
+      <div className="pointer-events-auto relative z-40">
+        <Footer />
+      </div>
     </section>
   );
 }
