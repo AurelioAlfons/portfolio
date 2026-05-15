@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import emailjs from "emailjs-com";
 import Footer from "./Footer";
 
 export default function ContactSection() {
@@ -11,33 +10,38 @@ export default function ContactSection() {
     message: "",
   });
 
+  const [isSending, setIsSending] = useState(false);
+
   const handleFormChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsSending(true);
 
-    emailjs
-      .send(
-        "YOUR_SERVICE_ID",
-        "YOUR_TEMPLATE_ID",
-        {
-          email: form.email,
-          subject: form.subject,
-          message: form.message,
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        "YOUR_PUBLIC_KEY"
-      )
-      .then(() => {
-        alert("Message sent!");
-        setForm({ email: "", subject: "", message: "" });
-      })
-      .catch(() => {
-        alert("Failed to send message.");
+        body: JSON.stringify(form),
       });
+
+      if (!res.ok) {
+        throw new Error("Failed to send");
+      }
+
+      alert("Message sent!");
+      setForm({ email: "", subject: "", message: "" });
+    } catch {
+      alert("Failed to send message.");
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -46,11 +50,8 @@ export default function ContactSection() {
       className="relative z-30 flex h-screen flex-col justify-between overflow-hidden px-8 py-28 text-white"
     >
       <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-12 md:grid-cols-[0.9fr_1.1fr]">
-        
-        {/* FORM */}
         <div className="pointer-events-auto relative z-40 mt-10 max-w-xl">
           <div className="rounded-3xl border border-white/10 bg-black/40 p-8 shadow-[0_0_40px_rgba(0,0,0,0.6)] backdrop-blur-lg">
-
             <h2 className="text-5xl font-bold">Contact</h2>
 
             <p className="mt-6 text-gray-300">
@@ -90,19 +91,18 @@ export default function ContactSection() {
 
               <button
                 type="submit"
-                className="mt-4 w-full rounded-xl border border-white/10 bg-white/10 px-6 py-3 text-gray-200 transition hover:bg-white/20"
+                disabled={isSending}
+                className="mt-4 w-full rounded-xl border border-white/10 bg-white/10 px-6 py-3 text-gray-200 transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Submit
+                {isSending ? "Sending..." : "Submit"}
               </button>
             </form>
           </div>
         </div>
 
-        {/* RIGHT SIDE EMPTY */}
         <div className="hidden md:block" />
       </div>
 
-      {/* FOOTER */}
       <div className="pointer-events-auto relative z-40">
         <Footer />
       </div>
