@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import "../css/GooeyNav.css";
+import "./GooeyNav.css";
 
 const items = [
   { label: "Home", href: "#home" },

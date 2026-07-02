@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useMotionValue, useTransform } from "motion/react";
 import type { Transition, MotionValue } from "motion/react";
-import "../css/Carousel.css";
+import "./Carousel.css";
 
 type CarouselItemType = {
   id: number;
