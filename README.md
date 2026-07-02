@@ -16,6 +16,23 @@ Open:
 
 ---
 
+## 🐳 Run with Docker
+
+```bash
+docker compose up --build
+```
+
+Or manually:
+
+```bash
+docker build -t portfolio .
+docker run -p 3000:3000 --env-file .env.local portfolio
+```
+
+Requires `RESEND_API_KEY` and `CONTACT_EMAIL` at runtime (see `.env.example`).
+
+---
+
 ## 🛠 Tech Stack
 
 * Next.js
