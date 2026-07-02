@@ -1,0 +1,94 @@
+"use client";
+
+import { useRef } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
+import { FaFileAlt, FaDownload, FaExternalLinkAlt } from "react-icons/fa";
+
+export default function ResumeCard() {
+  const cardRef = useRef<HTMLDivElement | null>(null);
+
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [14, -14]), {
+    stiffness: 200,
+    damping: 20,
+  });
+  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-14, 14]), {
+    stiffness: 200,
+    damping: 20,
+  });
+  const glowX = useTransform(x, [-0.5, 0.5], [0, 100]);
+  const glowY = useTransform(y, [-0.5, 0.5], [0, 100]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = cardRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    x.set((e.clientX - rect.left) / rect.width - 0.5);
+    y.set((e.clientY - rect.top) / rect.height - 0.5);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <div className="pointer-events-auto flex h-full flex-col justify-center rounded-3xl border border-white/10 bg-black/55 p-8 shadow-2xl backdrop-blur-md">
+      <p className="text-sm uppercase tracking-[0.3em] text-gray-400">
+        Resume
+      </p>
+
+      <div
+        ref={cardRef}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        style={{ perspective: 800 }}
+        className="mt-8 flex flex-1 items-center justify-center"
+      >
+        <motion.div
+          style={{
+            rotateX,
+            rotateY,
+            transformStyle: "preserve-3d",
+            backgroundImage: useTransform(
+              [glowX, glowY],
+              ([gx, gy]) =>
+                `radial-gradient(circle at ${gx}% ${gy}%, rgba(127,49,253,0.35), transparent 60%)`
+            ),
+          }}
+          className="flex aspect-[3/4] w-44 flex-col items-center justify-center gap-4 rounded-2xl border border-white/10 bg-white/5 text-gray-200 shadow-xl"
+        >
+          <FaFileAlt className="text-5xl text-[#7f31fd]" />
+          <span className="px-4 text-center text-sm font-medium">
+            Aurelio_Alfons_CV.pdf
+          </span>
+        </motion.div>
+      </div>
+
+      <p className="mt-8 text-sm text-gray-400">
+        Grab a copy of my resume for the full rundown of my experience and
+        skills.
+      </p>
+
+      <div className="mt-4 flex gap-4">
+        <a
+          href="/resume.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="pointer-events-auto flex flex-1 items-center justify-center gap-2 rounded-full border border-white/20 px-6 py-3 font-medium text-white transition hover:bg-white/10"
+        >
+          <FaExternalLinkAlt /> View
+        </a>
+
+        <a
+          href="/resume.pdf"
+          download
+          className="pointer-events-auto flex flex-1 items-center justify-center gap-2 rounded-full bg-white px-6 py-3 font-medium text-black transition hover:bg-gray-200"
+        >
+          <FaDownload /> Download
+        </a>
+      </div>
+    </div>
+  );
+}

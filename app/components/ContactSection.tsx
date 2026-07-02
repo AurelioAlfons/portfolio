@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Footer from "./Footer";
+import ResumeCard from "./ResumeCard";
 
 export default function ContactSection() {
   const [form, setForm] = useState({
@@ -100,7 +101,9 @@ export default function ContactSection() {
           </div>
         </div>
 
-        <div className="hidden md:block" />
+        <div className="pointer-events-auto relative z-40 mt-10 hidden md:block">
+          <ResumeCard />
+        </div>
       </div>
 
       <div className="pointer-events-auto relative z-40">

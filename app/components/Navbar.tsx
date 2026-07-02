@@ -154,7 +154,7 @@ export default function Navbar() {
 
   return (
     <nav className="pointer-events-auto fixed left-0 top-0 z-50 flex w-full justify-center px-8 py-6">
-      <div className="gooey-nav-container rounded-full border border-white/10 bg-black/50 px-3 py-2 backdrop-blur-md">
+      <div className="gooey-nav-container overflow-hidden rounded-full border border-white/10 bg-black/50 px-3 py-2 backdrop-blur-md">
         <div ref={containerRef} className="relative">
           <nav>
             <ul ref={navRef}>

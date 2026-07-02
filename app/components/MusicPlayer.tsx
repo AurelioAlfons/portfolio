@@ -8,7 +8,7 @@ export default function MusicPlayer() {
         Now Playing
       </p>
 
-      <div className="mt-4 h-[500px] w-full overflow-hidden rounded-2xl">
+      <div className="mt-4 h-125 w-full overflow-hidden rounded-2xl">
         <iframe
           src="https://open.spotify.com/embed/playlist/0B56I3kjyQNylz8s6bjFUy?utm_source=generator&theme=0"
           width="100%"
