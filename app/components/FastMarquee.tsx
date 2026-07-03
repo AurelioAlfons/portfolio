@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "motion/react";
 import {
   SiMysql,
   SiReact,
@@ -42,7 +43,13 @@ export default function TechMarquee() {
   const repeatedTechs = [...techs, ...techs];
 
   return (
-    <section className="pointer-events-auto relative w-full py-8">
+    <motion.section
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="pointer-events-auto relative w-full py-8"
+    >
       <div className="relative mx-auto max-w-7xl overflow-hidden rounded-2xl bg-black/20 backdrop-blur-sm">
 
         <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-72 bg-gradient-to-r from-black via-black/80 to-transparent" />
@@ -70,6 +77,6 @@ export default function TechMarquee() {
         </div>
 
       </div>
-    </section>
+    </motion.section>
   );
 }

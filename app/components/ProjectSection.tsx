@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "motion/react";
 import Carousel from "./Carousel";
 
 const projects = [
@@ -33,16 +34,29 @@ export default function ProjectSection() {
       className="relative z-[20000] pt-27 pb-20 text-white"
     >
       <div className="mx-auto max-w-[1600px] px-10">
-        <h2 className="mb-10 text-center text-4xl font-bold md:text-5xl">
+        <motion.h2
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="mb-10 text-center text-4xl font-bold md:text-5xl"
+        >
           Project Showcase
-        </h2>
+        </motion.h2>
 
-        <Carousel
-          items={projects}
-          autoplay={true}
-          autoplayDelay={3000}
-          pauseOnHover={true}
-        />
+        <motion.div
+          initial={{ opacity: 0, y: 32 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.7, ease: "easeOut", delay: 0.15 }}
+        >
+          <Carousel
+            items={projects}
+            autoplay={true}
+            autoplayDelay={3000}
+            pauseOnHover={true}
+          />
+        </motion.div>
       </div>
     </section>
   );

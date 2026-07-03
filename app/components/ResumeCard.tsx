@@ -72,22 +72,26 @@ export default function ResumeCard() {
       </p>
 
       <div className="mt-4 flex gap-4">
-        <a
+        <motion.a
           href="/resume.pdf"
           target="_blank"
           rel="noopener noreferrer"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.97 }}
           className="pointer-events-auto flex flex-1 items-center justify-center gap-2 rounded-full border border-white/20 px-6 py-3 font-medium text-white transition hover:bg-white/10"
         >
           <FaExternalLinkAlt /> View
-        </a>
+        </motion.a>
 
-        <a
+        <motion.a
           href="/resume.pdf"
           download
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.97 }}
           className="pointer-events-auto flex flex-1 items-center justify-center gap-2 rounded-full bg-white px-6 py-3 font-medium text-black transition hover:bg-gray-200"
         >
           <FaDownload /> Download
-        </a>
+        </motion.a>
       </div>
     </div>
   );

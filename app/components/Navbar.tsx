@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { motion } from "motion/react";
 import "./GooeyNav.css";
 
 const items = [
@@ -153,7 +154,12 @@ export default function Navbar() {
   }, [activeIndex]);
 
   return (
-    <nav className="pointer-events-auto fixed left-0 top-0 z-50 flex w-full justify-center px-8 py-6">
+    <motion.nav
+      initial={{ opacity: 0, y: -24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="pointer-events-auto fixed left-0 top-0 z-50 flex w-full justify-center px-8 py-6"
+    >
       <div className="gooey-nav-container overflow-hidden rounded-full border border-white/10 bg-black/50 px-3 py-2 backdrop-blur-md">
         <div ref={containerRef} className="relative">
           <nav>
@@ -172,6 +178,6 @@ export default function Navbar() {
           <span className="effect text" ref={textRef} />
         </div>
       </div>
-    </nav>
+    </motion.nav>
   );
 }

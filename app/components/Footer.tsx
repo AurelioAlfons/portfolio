@@ -1,8 +1,17 @@
+"use client";
+
+import { motion } from "motion/react";
 import { FaGithub, FaLinkedin, FaEnvelope } from "react-icons/fa";
 
 export default function Footer() {
   return (
-    <footer className="mx-auto mt-10 w-full max-w-7xl border-t border-white/10 pt-6">
+    <motion.footer
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="mx-auto mt-10 w-full max-w-7xl border-t border-white/10 pt-6"
+    >
       <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-10 md:flex-row md:items-center">
 
         {/* Icons */}
@@ -43,6 +52,6 @@ export default function Footer() {
       <p className="mt-8 text-center text-sm text-gray-500">
         Copyright © 2026 Aurelio Hevi Alfons. All rights reserved.
       </p>
-    </footer>
+    </motion.footer>
   );
 }

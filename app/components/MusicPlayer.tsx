@@ -1,9 +1,16 @@
 "use client";
 
+import { motion } from "motion/react";
+
 export default function MusicPlayer() {
   return (
-    <div className="pointer-events-auto flex h-full flex-col justify-center rounded-3xl border border-white/10 bg-black/55 p-4 shadow-2xl backdrop-blur-md">
-      
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut", delay: 0.25 }}
+      className="pointer-events-auto flex h-full flex-col justify-center rounded-3xl border border-white/10 bg-black/55 p-4 shadow-2xl backdrop-blur-md"
+    >
+
       <p className="text-sm uppercase tracking-[0.3em] text-gray-400 px-4 pt-4">
         Now Playing
       </p>
@@ -19,6 +26,6 @@ export default function MusicPlayer() {
         />
       </div>
 
-    </div>
+    </motion.div>
   );
 }

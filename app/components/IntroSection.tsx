@@ -1,36 +1,69 @@
+"use client";
+
+import { motion } from "motion/react";
 import { FaGithub, FaLinkedin, FaEnvelope } from "react-icons/fa";
+
+const containerVariants = {
+  hidden: {},
+  show: {
+    transition: { staggerChildren: 0.15, delayChildren: 0.1 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+} as const;
 
 export default function IntroSection() {
   return (
-    <div className="flex h-full flex-col justify-center rounded-3xl border border-white/10 bg-black/55 p-12 text-left shadow-2xl backdrop-blur-md">
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="flex h-full flex-col justify-center rounded-3xl border border-white/10 bg-black/55 p-12 text-left shadow-2xl backdrop-blur-md"
+    >
 
-      <h1 className="text-5xl font-bold text-white md:text-6xl">
+      <motion.h1
+        variants={itemVariants}
+        className="text-5xl font-bold text-white md:text-6xl"
+      >
         Aurelio Hevi Alfons
-      </h1>
+      </motion.h1>
 
-      <p className="mt-6 max-w-xl text-lg leading-8 text-gray-300">
+      <motion.p
+        variants={itemVariants}
+        className="mt-6 max-w-xl text-lg leading-8 text-gray-300"
+      >
         I’m a junior software developer. I like to build cool projects and
         design websites. I also enjoy music. Feel free to send me a message,
         keen to collaborate.
-      </p>
+      </motion.p>
 
-    <div className="mt-8 flex gap-4">
-      <a
+    <motion.div variants={itemVariants} className="mt-8 flex gap-4">
+      <motion.a
         href="#projects"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.97 }}
         className="pointer-events-auto rounded-full bg-white px-6 py-3 font-medium text-black hover:bg-gray-200"
       >
         View Projects
-      </a>
+      </motion.a>
 
-      <a
+      <motion.a
         href="#contact"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.97 }}
         className="pointer-events-auto rounded-full border border-white/20 px-6 py-3 font-medium text-white hover:bg-white/10"
       >
         Contact Me
-      </a>
-    </div>
+      </motion.a>
+    </motion.div>
 
-    <div className="pointer-events-auto mt-8 flex gap-6 text-5xl text-gray-300">
+    <motion.div
+      variants={itemVariants}
+      className="pointer-events-auto mt-8 flex gap-6 text-5xl text-gray-300"
+    >
       <a
         href="https://github.com/AurelioAlfons"
         target="_blank"
@@ -54,9 +87,9 @@ export default function IntroSection() {
         className="transition duration-300 hover:scale-125 hover:text-[#7f31fd]"      >
         <FaEnvelope />
       </a>
-    </div>
+    </motion.div>
 
-          
-    </div>
+
+    </motion.div>
   );
 }

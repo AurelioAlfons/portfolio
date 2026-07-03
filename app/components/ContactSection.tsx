@@ -1,8 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "motion/react";
 import Footer from "./Footer";
 import ResumeCard from "./ResumeCard";
+
+const columnVariants = {
+  hidden: { opacity: 0, y: 32 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+} as const;
 
 export default function ContactSection() {
   const [form, setForm] = useState({
@@ -50,8 +56,17 @@ export default function ContactSection() {
       id="contact"
       className="relative z-30 flex h-screen flex-col justify-between overflow-hidden px-8 py-28 text-white"
     >
-      <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-12 md:grid-cols-[0.9fr_1.1fr]">
-        <div className="pointer-events-auto relative z-40 mt-10 max-w-xl">
+      <motion.div
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ staggerChildren: 0.15 }}
+        className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-12 md:grid-cols-[0.9fr_1.1fr]"
+      >
+        <motion.div
+          variants={columnVariants}
+          className="pointer-events-auto relative z-40 mt-10 max-w-xl"
+        >
           <div className="rounded-3xl border border-white/10 bg-black/40 p-8 shadow-[0_0_40px_rgba(0,0,0,0.6)] backdrop-blur-lg">
             <h2 className="text-5xl font-bold">Contact</h2>
 
@@ -90,21 +105,26 @@ export default function ContactSection() {
                 required
               />
 
-              <button
+              <motion.button
                 type="submit"
                 disabled={isSending}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 className="mt-4 w-full rounded-xl border border-white/10 bg-white/10 px-6 py-3 text-gray-200 transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isSending ? "Sending..." : "Submit"}
-              </button>
+              </motion.button>
             </form>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="pointer-events-auto relative z-40 mt-10 hidden md:block">
+        <motion.div
+          variants={columnVariants}
+          className="pointer-events-auto relative z-40 mt-10 hidden md:block"
+        >
           <ResumeCard />
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       <div className="pointer-events-auto relative z-40">
         <Footer />
