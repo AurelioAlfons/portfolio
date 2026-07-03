@@ -57,7 +57,7 @@ export default function ContactSection() {
       id="contact"
       onViewportEnter={() => setFluidTheme("contact")}
       viewport={{ once: false, amount: 0.3 }}
-      className="relative z-30 flex h-screen flex-col justify-between overflow-hidden px-8 py-28 text-white"
+      className="relative z-30 flex min-h-screen flex-col justify-between overflow-hidden px-4 py-16 text-white sm:px-6 sm:py-20 md:h-screen md:px-8 md:py-28"
     >
       <motion.div
         initial="hidden"
@@ -70,8 +70,8 @@ export default function ContactSection() {
           variants={columnVariants}
           className="pointer-events-auto relative z-40 mt-10 max-w-xl"
         >
-          <div className="rounded-3xl border border-white/10 bg-black/40 p-8 shadow-[0_0_40px_rgba(0,0,0,0.6)] backdrop-blur-lg">
-            <h2 className="text-5xl font-bold">Contact</h2>
+          <div className="rounded-3xl border border-white/10 bg-black/40 p-6 shadow-[0_0_40px_rgba(0,0,0,0.6)] backdrop-blur-lg sm:p-8">
+            <h2 className="text-4xl font-bold sm:text-5xl">Contact</h2>
 
             <p className="mt-6 text-gray-300">
               Have a question or a project in mind? Feel free to reach out.
@@ -123,7 +123,7 @@ export default function ContactSection() {
 
         <motion.div
           variants={columnVariants}
-          className="pointer-events-auto relative z-40 mt-10 hidden md:block"
+          className="pointer-events-auto relative z-40 md:mt-10"
         >
           <ResumeCard />
         </motion.div>

@@ -93,7 +93,25 @@ export default function Carousel({
   pauseOnHover?: boolean;
   loop?: boolean;
 }) {
-  const itemWidth = baseWidth;
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+  const [itemWidth, setItemWidth] = useState(baseWidth);
+
+  useEffect(() => {
+    const el = viewportRef.current;
+    if (!el) return;
+
+    const updateWidth = () => {
+      setItemWidth(Math.min(el.offsetWidth, baseWidth));
+    };
+
+    updateWidth();
+
+    const resizeObserver = new ResizeObserver(updateWidth);
+    resizeObserver.observe(el);
+
+    return () => resizeObserver.disconnect();
+  }, [baseWidth]);
+
   const trackItemOffset = itemWidth + GAP;
 
   const itemsForRender = useMemo(() => {
@@ -234,7 +252,7 @@ export default function Carousel({
         →
       </button>
 
-      <div className="carousel-viewport">
+      <div className="carousel-viewport" ref={viewportRef}>
         <motion.div
           className="carousel-track"
           drag={isAnimating ? false : "x"}

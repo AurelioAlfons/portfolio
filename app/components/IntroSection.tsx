@@ -24,12 +24,12 @@ export default function IntroSection() {
       animate="show"
       onViewportEnter={() => setFluidTheme("home")}
       viewport={{ once: false, amount: 0.6 }}
-      className="flex h-full flex-col justify-center rounded-3xl border border-white/10 bg-black/55 p-12 text-left shadow-2xl backdrop-blur-md"
+      className="flex h-full flex-col justify-center rounded-3xl border border-white/10 bg-black/55 p-6 text-left shadow-2xl backdrop-blur-md sm:p-8 md:p-12"
     >
 
       <motion.h1
         variants={itemVariants}
-        className="text-5xl font-bold text-white md:text-6xl"
+        className="text-4xl font-bold text-white sm:text-5xl md:text-6xl"
       >
         Aurelio Hevi Alfons
       </motion.h1>
@@ -43,12 +43,12 @@ export default function IntroSection() {
         keen to collaborate.
       </motion.p>
 
-    <motion.div variants={itemVariants} className="mt-8 flex gap-4">
+    <motion.div variants={itemVariants} className="mt-8 flex flex-wrap gap-3 sm:gap-4">
       <motion.a
         href="#projects"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.97 }}
-        className="pointer-events-auto rounded-full bg-white px-6 py-3 font-medium text-black hover:bg-gray-200"
+        className="pointer-events-auto whitespace-nowrap rounded-full bg-white px-4 py-2.5 font-medium text-black hover:bg-gray-200 sm:px-6 sm:py-3"
       >
         View Projects
       </motion.a>
@@ -57,7 +57,7 @@ export default function IntroSection() {
         href="#contact"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.97 }}
-        className="pointer-events-auto rounded-full border border-white/20 px-6 py-3 font-medium text-white hover:bg-white/10"
+        className="pointer-events-auto whitespace-nowrap rounded-full border border-white/20 px-4 py-2.5 font-medium text-white hover:bg-white/10 sm:px-6 sm:py-3"
       >
         Contact Me
       </motion.a>

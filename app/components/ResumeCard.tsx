@@ -34,7 +34,7 @@ export default function ResumeCard() {
   };
 
   return (
-    <div className="pointer-events-auto flex h-full flex-col justify-center rounded-3xl border border-white/10 bg-black/55 p-8 shadow-2xl backdrop-blur-md">
+    <div className="pointer-events-auto flex h-full flex-col justify-center rounded-3xl border border-white/10 bg-black/55 p-6 shadow-2xl backdrop-blur-md sm:p-8">
       <p className="text-sm uppercase tracking-[0.3em] text-gray-400">
         Resume
       </p>
@@ -78,7 +78,7 @@ export default function ResumeCard() {
           rel="noopener noreferrer"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.97 }}
-          className="pointer-events-auto flex flex-1 items-center justify-center gap-2 rounded-full border border-white/20 px-6 py-3 font-medium text-white transition hover:bg-white/10"
+          className="pointer-events-auto flex flex-1 items-center justify-center gap-2 rounded-full border border-white/20 px-4 py-2.5 font-medium text-white transition hover:bg-white/10 sm:px-6 sm:py-3"
         >
           <FaExternalLinkAlt /> View
         </motion.a>
@@ -88,7 +88,7 @@ export default function ResumeCard() {
           download
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.97 }}
-          className="pointer-events-auto flex flex-1 items-center justify-center gap-2 rounded-full bg-white px-6 py-3 font-medium text-black transition hover:bg-gray-200"
+          className="pointer-events-auto flex flex-1 items-center justify-center gap-2 rounded-full bg-white px-4 py-2.5 font-medium text-black transition hover:bg-gray-200 sm:px-6 sm:py-3"
         >
           <FaDownload /> Download
         </motion.a>

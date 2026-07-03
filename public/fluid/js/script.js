@@ -1217,6 +1217,32 @@ canvas.addEventListener("mouseleave", () => {
   updatePointerUpData(pointers[0]);
 });
 
+// Touch devices don't get continuous mousemove-style tracking (that would
+// require preventDefault() on touchmove, which blocks page scrolling).
+// Instead, each tap fires a one-off splash at that point.
+canvas.addEventListener(
+  "touchstart",
+  (e) => {
+    const touch = e.touches[0];
+    if (!touch) return;
+
+    idleMode = false;
+    clearTimeout(idleTimeout);
+    idleTimeout = setTimeout(() => {
+      idleMode = true;
+    }, 2000);
+
+    const rect = canvas.getBoundingClientRect();
+    const x = (touch.clientX - rect.left) / rect.width;
+    const y = 1.0 - (touch.clientY - rect.top) / rect.height;
+    const dx = (Math.random() - 0.5) * 1000;
+    const dy = (Math.random() - 0.5) * 1000;
+
+    splat(x, y, dx, dy, generateColor());
+  },
+  { passive: true }
+);
+
 setInterval(() => {
   if (!idleMode) return;
 

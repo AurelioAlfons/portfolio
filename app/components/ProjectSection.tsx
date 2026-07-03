@@ -36,7 +36,7 @@ export default function ProjectSection() {
       viewport={{ once: false, amount: 0.35 }}
       className="relative z-20000 pt-27 pb-20 text-white"
     >
-      <div className="mx-auto max-w-400 px-10">
+      <div className="mx-auto max-w-400 px-4 sm:px-6 md:px-10">
         <motion.h2
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
