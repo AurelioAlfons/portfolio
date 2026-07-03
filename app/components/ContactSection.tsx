@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "motion/react";
 import Footer from "./Footer";
 import ResumeCard from "./ResumeCard";
+import { setFluidTheme } from "../lib/fluidTheme";
 
 const columnVariants = {
   hidden: { opacity: 0, y: 32 },
@@ -52,8 +53,10 @@ export default function ContactSection() {
   };
 
   return (
-    <section
+    <motion.section
       id="contact"
+      onViewportEnter={() => setFluidTheme("contact")}
+      viewport={{ once: false, amount: 0.3 }}
       className="relative z-30 flex h-screen flex-col justify-between overflow-hidden px-8 py-28 text-white"
     >
       <motion.div
@@ -129,6 +132,6 @@ export default function ContactSection() {
       <div className="pointer-events-auto relative z-40">
         <Footer />
       </div>
-    </section>
+    </motion.section>
   );
 }

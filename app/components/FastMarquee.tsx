@@ -52,9 +52,9 @@ export default function TechMarquee() {
     >
       <div className="relative mx-auto max-w-7xl overflow-hidden rounded-2xl bg-black/20 backdrop-blur-sm">
 
-        <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-72 bg-gradient-to-r from-black via-black/80 to-transparent" />
+        <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-72 bg-linear-to-r from-black via-black/80 to-transparent" />
 
-        <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-72 bg-gradient-to-l from-black via-black/80 to-transparent" />
+        <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-72 bg-linear-to-l from-black via-black/80 to-transparent" />
 
         <div className="flex w-max animate-smooth-marquee will-change-transform">
           {repeatedTechs.map((tech, index) => {

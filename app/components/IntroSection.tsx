@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { FaGithub, FaLinkedin, FaEnvelope } from "react-icons/fa";
+import { setFluidTheme } from "../lib/fluidTheme";
 
 const containerVariants = {
   hidden: {},
@@ -21,6 +22,8 @@ export default function IntroSection() {
       variants={containerVariants}
       initial="hidden"
       animate="show"
+      onViewportEnter={() => setFluidTheme("home")}
+      viewport={{ once: false, amount: 0.6 }}
       className="flex h-full flex-col justify-center rounded-3xl border border-white/10 bg-black/55 p-12 text-left shadow-2xl backdrop-blur-md"
     >
 

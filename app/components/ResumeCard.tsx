@@ -57,7 +57,7 @@ export default function ResumeCard() {
                 `radial-gradient(circle at ${gx}% ${gy}%, rgba(127,49,253,0.35), transparent 60%)`
             ),
           }}
-          className="flex aspect-[3/4] w-44 flex-col items-center justify-center gap-4 rounded-2xl border border-white/10 bg-white/5 text-gray-200 shadow-xl"
+          className="flex aspect-3/4 w-44 flex-col items-center justify-center gap-4 rounded-2xl border border-white/10 bg-white/5 text-gray-200 shadow-xl"
         >
           <FaFileAlt className="text-5xl text-[#7f31fd]" />
           <span className="px-4 text-center text-sm font-medium">

@@ -54,6 +54,20 @@ const config = {
   BLOOM_SOFT_KNEE: 0.7,
 };
 
+// Section-driven color theme, set via postMessage from the parent page.
+// themePalette stays null (fully random rainbow splats, original behavior)
+// until a theme message arrives.
+let backColorTarget = { ...config.BACK_COLOR };
+let themePalette = null;
+
+window.addEventListener("message", (event) => {
+  const data = event.data;
+  if (!data || data.type !== "fluid-theme") return;
+
+  if (data.backColor) backColorTarget = data.backColor;
+  themePalette = Array.isArray(data.palette) ? data.palette : null;
+});
+
 let idleMode = true;
 let idleTimeout;
 let lastMove = -1;
@@ -896,6 +910,7 @@ function update() {
 
   if (resizeCanvas()) initFramebuffers();
   updateColors(dt);
+  updateBackColor(dt);
   applyInputs();
 
   if (!config.PAUSED) step(dt);
@@ -936,6 +951,13 @@ function updateColors(dt) {
       p.color = generateColor();
     });
   }
+}
+
+function updateBackColor(dt) {
+  const ease = Math.min(dt * 1.5, 1);
+  config.BACK_COLOR.r += (backColorTarget.r - config.BACK_COLOR.r) * ease;
+  config.BACK_COLOR.g += (backColorTarget.g - config.BACK_COLOR.g) * ease;
+  config.BACK_COLOR.b += (backColorTarget.b - config.BACK_COLOR.b) * ease;
 }
 
 function applyInputs() {
@@ -1254,7 +1276,14 @@ function correctDeltaY(delta) {
 }
 
 function generateColor() {
-  let c = HSVtoRGB(Math.random(), 1.0, 0.7);
+  let c;
+
+  if (themePalette && themePalette.length > 0) {
+    const p = themePalette[Math.floor(Math.random() * themePalette.length)];
+    c = HSVtoRGB(p.h, p.s, p.v);
+  } else {
+    c = HSVtoRGB(Math.random(), 1.0, 0.7);
+  }
 
   c.r = Math.min(c.r, 0.75);
   c.g = Math.min(c.g, 0.75);

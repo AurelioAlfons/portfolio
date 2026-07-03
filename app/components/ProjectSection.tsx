@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import Carousel from "./Carousel";
+import { setFluidTheme } from "../lib/fluidTheme";
 
 const projects = [
   {
@@ -29,11 +30,13 @@ const projects = [
 
 export default function ProjectSection() {
   return (
-    <section
+    <motion.section
       id="projects"
-      className="relative z-[20000] pt-27 pb-20 text-white"
+      onViewportEnter={() => setFluidTheme("projects")}
+      viewport={{ once: false, amount: 0.35 }}
+      className="relative z-20000 pt-27 pb-20 text-white"
     >
-      <div className="mx-auto max-w-[1600px] px-10">
+      <div className="mx-auto max-w-400 px-10">
         <motion.h2
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -58,6 +61,6 @@ export default function ProjectSection() {
           />
         </motion.div>
       </div>
-    </section>
+    </motion.section>
   );
 }
