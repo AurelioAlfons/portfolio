@@ -9,7 +9,7 @@ const projects = [
     id: 1,
     title: "PokeSim",
     description: "Gen 4 Pokémon battle simulator built with React + FastAPI.",
-    link: "https://poke-aznezhjd0-aurelio-alfons-projects.vercel.app",
+    link: "https://poke-sim-two.vercel.app",
     image: "/images/PokeSim.png",
   },
   {
