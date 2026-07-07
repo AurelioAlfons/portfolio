@@ -1,0 +1,313 @@
+/* STAGE 1 — static jagged shard composition only.
+   No energy shader / particles / rain / morph / transitions (Stages 2-4). */
+
+/* Full-height projects section: heading (top) / band (middle) / caption (bottom) */
+.twd-section {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+.twd-heading {
+  padding: 7rem 1rem 0;
+  text-align: center;
+}
+
+.twd-root {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(1rem, 2vh, 2rem);
+  width: 100%;
+  outline: none;
+}
+
+.twd-root:focus-visible {
+  outline: 2px solid #7f31fd;
+  outline-offset: 4px;
+}
+
+/* Hidden SVG that holds the shard <clipPath> defs */
+.twd-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* ---- The three-shard band (full-bleed, middle band) ---- */
+.twd-band {
+  position: relative;
+  width: 100%;
+  height: 60vh;
+  min-height: 300px;
+  overflow: hidden;
+  background: #050507;
+  cursor: grab;
+  /* Re-enable input: the global content wrapper is pointer-events:none */
+  pointer-events: auto;
+  /* Contain the energy field's screen blend to the band */
+  isolation: isolate;
+  /* Charge-up: muted until the section scrolls into view (shader ramps too) */
+  filter: saturate(0.6);
+  transition: filter 2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.twd-band.twd-charged {
+  filter: saturate(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .twd-band {
+    filter: saturate(1);
+    transition: none;
+  }
+}
+
+/* ---- Stage 2: WebGL energy field, blended as light over the panels ---- */
+.twd-field {
+  position: absolute !important;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+/* R3F wraps the canvas in inner divs; make the whole field subtree
+   non-interactive so clicks/drags fall through to the panels below. */
+.twd-field,
+.twd-field * {
+  pointer-events: none !important;
+}
+
+.twd-band:active {
+  cursor: grabbing;
+}
+
+/* ---- Panel slots: tall near-vertical leaning strips, clipped by SVG ---- */
+.twd-slot {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  overflow: hidden;
+  isolation: isolate; /* contain the grade blend to this panel */
+}
+
+/* Center: focused project, a bit wider (~40%), on top */
+.twd-center {
+  left: 30%;
+  width: 40%;
+  z-index: 3;
+  cursor: pointer;
+}
+
+/* Sides: ~30% each, bleeding off the viewport edges, tucked behind center */
+.twd-left {
+  left: -6%;
+  width: 40%;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.twd-right {
+  right: -6%;
+  width: 40%;
+  z-index: 2;
+  cursor: pointer;
+}
+
+/* Inner wrapper animated on swap (Stage 3): grows/settles into the slot */
+.twd-inner {
+  position: absolute;
+  inset: 0;
+  will-change: transform, opacity;
+}
+
+.twd-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  user-select: none;
+}
+
+/* Center brighter/focused, sides pushed back (dimmer) */
+.twd-center .twd-img {
+  filter: brightness(1.08) saturate(1.05);
+}
+.twd-left .twd-img,
+.twd-right .twd-img {
+  filter: brightness(0.72) saturate(1.1);
+}
+
+/* ---- Cinematic color grade (recolors the screenshot, not a flat wash) ---- */
+.twd-grade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: color; /* keep screenshot luminance, restyle the hue */
+}
+
+/* LEFT = blue / cyan */
+.twd-grade-left {
+  background: linear-gradient(160deg, #29d3ff, #1e5bff);
+  opacity: 0.7;
+}
+
+/* RIGHT = green / yellow */
+.twd-grade-right {
+  background: linear-gradient(200deg, #39e35a, #bfe000);
+  opacity: 0.64;
+}
+
+/* CENTER = red / pink / magenta. Strong (color blend keeps luminance, so the
+   screenshot stays legible) to override the screenshot's own warm colors. */
+.twd-grade-center {
+  background: linear-gradient(155deg, #ff45b0, #ff2d6a 55%, #d21a5e);
+  opacity: 0.85;
+}
+
+/* White highlights on the center panel */
+.twd-hi {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: radial-gradient(circle at 50% 34%, rgba(255, 255, 255, 0.45), transparent 55%);
+}
+
+/* ---- Thin torn black dividers between panels ---- */
+.twd-dividers {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* ---- Stage 3: swap impact flash + speed-line streaks ---- */
+.twd-swap {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.twd-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 255, 255, 0.9),
+    rgba(255, 240, 250, 0.35) 40%,
+    transparent 72%
+  );
+}
+
+.twd-streaks {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: blur(0.6px);
+}
+
+/* ---- Caption row ---- */
+.twd-caption {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+  text-align: center;
+  /* Re-enable input: the global content wrapper is pointer-events:none */
+  pointer-events: auto;
+}
+
+.twd-title {
+  font-size: clamp(22px, 3vw, 30px);
+  font-weight: 700;
+  color: #fff;
+}
+
+.twd-desc {
+  margin: 10px auto 0;
+  max-width: 640px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.66);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.twd-chips {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.twd-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.twd-chip-icon {
+  font-size: 16px;
+}
+
+/* Explicit open button — mobile only (desktop opens via center shard click) */
+.twd-open-btn {
+  display: none;
+  margin-top: 16px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  background: #7f31fd;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* ---- Mobile: center dominant + small side peeks ---- */
+@media (max-width: 768px) {
+  .twd-heading {
+    padding-top: 6rem;
+  }
+
+  .twd-band {
+    height: 38vh;
+  }
+
+  .twd-center {
+    left: 29%;
+    width: 42%;
+  }
+
+  .twd-left {
+    left: -16%;
+    width: 46%;
+  }
+
+  .twd-right {
+    right: -16%;
+    width: 46%;
+  }
+
+  .twd-open-btn {
+    display: inline-block;
+  }
+}

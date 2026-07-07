@@ -1,16 +1,17 @@
 "use client";
 
 import { motion } from "motion/react";
-import Carousel from "./Carousel";
+import ThreeWayDomain, { type Project } from "./ThreeWayDomain";
 import { setFluidTheme } from "../lib/fluidTheme";
 
-const projects = [
+const projects: Project[] = [
   {
     id: 1,
     title: "PokeSim",
     description: "Gen 4 Pokémon battle simulator built with React + FastAPI.",
     link: "https://poke-sim-two.vercel.app",
     image: "/images/PokeSim.png",
+    tech: ["react", "fastapi", "python"],
   },
   {
     id: 2,
@@ -18,6 +19,7 @@ const projects = [
     description: "Interactive heatmap system with filtering, built using Python + Flutter UI.",
     link: "https://www.linkedin.com/posts/aurelio-alfons_uidesign-frontendmagic-flutterdev-ugcPost-7351905548038033408-BzZO",
     image: "/images/SFT.jpg",
+    tech: ["python", "flutter"],
   },
   {
     id: 3,
@@ -25,6 +27,7 @@ const projects = [
     description: "A small fun Valentine-themed web project.",
     link: "https://cat-mail-git-main-aurelio-alfons-projects.vercel.app",
     image: "/images/Valentine.png",
+    tech: ["react", "typescript"],
   },
   {
     id: 4,
@@ -33,6 +36,7 @@ const projects = [
       "AI-powered movie recommendation app using Gemini + TMDB, built with React, TypeScript, Tailwind & Docker.",
     link: "https://watchwise-ai-puce.vercel.app",
     image: "/images/WatchWise.jpeg",
+    tech: ["react", "typescript", "tailwind", "docker", "gemini", "tmdb"],
   },
 ];
 
@@ -42,33 +46,21 @@ export default function ProjectSection() {
       id="projects"
       onViewportEnter={() => setFluidTheme("projects")}
       viewport={{ once: false, amount: 0.35 }}
-      className="relative z-20000 pt-27 pb-20 text-white"
+      className="twd-section relative z-20000 text-white"
     >
-      <div className="mx-auto max-w-400 px-4 sm:px-6 md:px-10">
+      <div className="twd-heading">
         <motion.h2
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="mb-10 text-center text-4xl font-bold md:text-5xl"
+          className="text-4xl font-bold md:text-5xl"
         >
           Project Showcase
         </motion.h2>
-
-        <motion.div
-          initial={{ opacity: 0, y: 32 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.7, ease: "easeOut", delay: 0.15 }}
-        >
-          <Carousel
-            items={projects}
-            autoplay={true}
-            autoplayDelay={3000}
-            pauseOnHover={true}
-          />
-        </motion.div>
       </div>
+
+      <ThreeWayDomain projects={projects} />
     </motion.section>
   );
 }
