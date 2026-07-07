@@ -1,0 +1,7 @@
+{
+  "files.associations": {
+    "**/.git/info/exclude": "ignore",
+    "**/.git/**/gitignore": "ignore",
+    ".gitignore": "ignore"
+  }
+}

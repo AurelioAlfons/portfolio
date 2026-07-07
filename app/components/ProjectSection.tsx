@@ -26,6 +26,14 @@ const projects = [
     link: "https://cat-mail-git-main-aurelio-alfons-projects.vercel.app",
     image: "/images/Valentine.png",
   },
+  {
+    id: 4,
+    title: "WatchWise AI",
+    description:
+      "AI-powered movie recommendation app using Gemini + TMDB, built with React, TypeScript, Tailwind & Docker.",
+    link: "https://watchwise-ai-puce.vercel.app",
+    image: "/images/WatchWise.jpeg",
+  },
 ];
 
 export default function ProjectSection() {
