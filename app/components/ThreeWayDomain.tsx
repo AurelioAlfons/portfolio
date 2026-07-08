@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
-import { motion } from "motion/react";
+import { animate, motion } from "motion/react";
 import { TECH, type TechKey } from "../lib/techIcons";
 import { SHARDS, toPath, DIVIDER_PATHS, STREAK_PATHS, type ShardRole } from "./domainShards";
 import DomainField from "./DomainField";
@@ -46,8 +46,10 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
   const [dir, setDir] = useState(1); // last swap direction
   const [swapId, setSwapId] = useState(0); // bumps each swap → drives surge + flash
   const [swapping, setSwapping] = useState(false); // flash/streaks overlay active
+  const [zoomId, setZoomId] = useState(0); // bumps on scroll-in + swap → zoom/saturate
   const movedRef = useRef(false);
   const bandRef = useRef<HTMLDivElement | null>(null);
+  const zoomRef = useRef<HTMLDivElement | null>(null);
   const swapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Track prefers-reduced-motion + pick a quality tier from the viewport width.
@@ -73,7 +75,10 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
     const io = new IntersectionObserver(
       ([entry]) => {
         setInView(entry.isIntersecting);
-        if (entry.isIntersecting) setSeenField(true);
+        if (entry.isIntersecting) {
+          setSeenField(true);
+          setZoomId((z) => z + 1); // charge-up on each scroll-into-view
+        }
       },
       { rootMargin: "200px" }
     );
@@ -88,6 +93,28 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
     };
   }, []);
 
+  // Charge-up: quick zoom-in that eases back out, while the color grade
+  // saturates from faded to full (~1.8s). Plays on scroll-in and every swap.
+  useEffect(() => {
+    if (reduced || zoomId === 0) return;
+    const el = zoomRef.current;
+    if (!el) return;
+    const zoom = animate(
+      el,
+      { scale: [1, 1.07, 1] },
+      { duration: 1.8, ease: "easeOut", times: [0, 0.3, 1] }
+    );
+    const sat = animate(
+      el,
+      { filter: ["saturate(0.6)", "saturate(1)"] },
+      { duration: 1.8, ease: "easeOut" }
+    );
+    return () => {
+      zoom.stop();
+      sat.stop();
+    };
+  }, [zoomId, reduced]);
+
   if (n === 0) return null;
 
   const prev = (selected - 1 + n) % n;
@@ -99,8 +126,10 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
     setSelected((s) => (s + d + n) % n);
     setDir(d);
     if (reduced) return; // reduced motion: instant switch, no surge/flash
-    // Fire the swap: bumps the shader surge + shows the flash/streaks overlay.
+    // Fire the swap: bumps the shader surge + shows the flash/streaks overlay,
+    // and replays the zoom/saturation charge-up.
     setSwapId((x) => x + 1);
+    setZoomId((z) => z + 1);
     setSwapping(true);
     if (swapTimer.current) clearTimeout(swapTimer.current);
     swapTimer.current = setTimeout(() => setSwapping(false), 620);
@@ -172,7 +201,7 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
 
       <motion.div
         ref={bandRef}
-        className={`twd-band${inView || reduced ? " twd-charged" : ""}`}
+        className="twd-band"
         drag={n > 1 ? "x" : false}
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={0.16}
@@ -182,6 +211,13 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
         }}
         onDragEnd={handleDragEnd}
       >
+        {/* Zoom/saturation wrapper: charge-up scales this and ramps its filter
+            (imperative animate — no remount, the WebGL canvas survives). */}
+        <div
+          ref={zoomRef}
+          className="twd-zoom"
+          style={{ filter: reduced ? undefined : "saturate(0.6)" }}
+        >
         {slots.map(({ idx, role }) => {
           const p = projects[idx];
           const clip = `url(#twd-shard-${role})`;
@@ -234,7 +270,7 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
           focusable="false"
         >
           {DIVIDER_PATHS.map((d, i) => (
-            <path key={i} d={d} fill="#050507" />
+            <path key={i} d={d} fill="#000" />
           ))}
         </svg>
 
@@ -248,6 +284,7 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
             surge={swapId}
           />
         )}
+        </div>
 
         {/* Stage 3 — impact flash + speed-line streaks on swap */}
         {swapping && !reduced && (

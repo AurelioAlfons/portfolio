@@ -62,9 +62,10 @@ function buildParticles(count: number): THREE.BufferGeometry | null {
     let s: number;
 
     if (i % 3 === 0) {
-      // spark: hug a seam
+      // spark: flank a seam, just OUTSIDE the black divider gap
       const seamX = i % 2 === 0 ? sL : sR;
-      x = seamX * 2 - 1 + (rand() - 0.5) * 0.05;
+      const side = rand() < 0.5 ? -1 : 1;
+      x = (seamX + side * (0.028 + rand() * 0.02)) * 2 - 1;
       rgb = PARTICLE_RGB.spark;
       s = rand() * 4 + 3;
     } else {
@@ -151,16 +152,18 @@ function FieldScene({
     if (reduced) return;
     const d = Math.min(delta, 0.05);
     // Trigger a surge when the swap counter changes, then decay it (~0.55s).
+    // A swap also restarts the charge-up ramp (matches the DOM zoom/saturate).
     if (surge !== lastSurge.current) {
       surgeVal.current = 1;
       lastSurge.current = surge;
+      chargeT.current = 0;
     }
     if (surgeVal.current > 0) surgeVal.current = Math.max(0, surgeVal.current - d / 0.55);
-    // Charge-up: restart the ~2s power-up ramp each time the section enters view.
+    // Charge-up: restart the ~1.8s power-up ramp each time the section enters view.
     if (active && !wasActive.current) chargeT.current = 0;
     wasActive.current = active;
     chargeT.current += d;
-    const ct = Math.min(chargeT.current / 2, 1);
+    const ct = Math.min(chargeT.current / 1.8, 1);
     const charge = 1 - Math.pow(1 - ct, 3); // ease-out
     const e = energyRef.current;
     if (e) {

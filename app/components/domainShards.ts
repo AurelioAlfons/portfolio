@@ -55,30 +55,41 @@ export const SHARDS = {
 export type ShardRole = keyof typeof SHARDS;
 
 // --- Torn divider ribbons (band-fraction 0..1) ---
-// A thin, slightly wobbly, leaning vertical ribbon between two panels.
-function tornRibbon(topX: number, botX: number, halfW: number, wob: number[]): Pt[] {
-  const n = wob.length;
+// A thick, solid black leaning ribbon between two panels. Each edge carries
+// its own gentle meander (no alternating zigzag) so it reads as one torn
+// black gap, not a jagged mark.
+function tornRibbon(
+  topX: number,
+  botX: number,
+  halfW: number,
+  wobA: number[],
+  wobB: number[]
+): Pt[] {
+  const n = wobA.length;
   const left: Pt[] = [];
   const right: Pt[] = [];
   for (let i = 0; i < n; i++) {
     const t = i / (n - 1);
-    const cx = topX + (botX - topX) * t + wob[i];
-    left.push([cx - halfW, t]);
-    right.push([cx + halfW, t]);
+    const cx = topX + (botX - topX) * t;
+    left.push([cx - halfW + wobA[i], t]);
+    right.push([cx + halfW + wobB[i], t]);
   }
   return [...left, ...right.reverse()];
 }
 
-// Fixed (deterministic) wobble so SSR and client render identically.
-// Scaled up for a more hand-torn feel.
-const WOB_LEFT = [0, 0.009, -0.006, 0.01, -0.005, 0.008, -0.003, 0.006];
-const WOB_RIGHT = [0, -0.008, 0.009, -0.005, 0.009, -0.006, 0.005, -0.003];
+// Fixed (deterministic) gentle meanders — independent per edge, small and
+// same-signed so the edges stay subtly irregular but never zigzag.
+const WOB_EDGE_A1 = [0, 0.003, 0.005, 0.002, 0.006, 0.003, 0.005, 0.002];
+const WOB_EDGE_B1 = [0.002, 0.005, 0.002, 0.006, 0.003, 0.006, 0.002, 0.004];
+const WOB_EDGE_A2 = [0.001, 0.004, 0.002, 0.005, 0.002, 0.006, 0.003, 0.001];
+const WOB_EDGE_B2 = [0.003, 0.001, 0.005, 0.002, 0.006, 0.002, 0.005, 0.003];
 
 // Left divider ≈ center panel's left seam; right divider ≈ its right seam.
-// Thick torn BLACK gaps (per the video reference).
+// Thick, fully-opaque BLACK gaps that block the view between panels.
+export const DIVIDER_HALF_W = 0.016;
 export const DIVIDER_PATHS: string[] = [
-  toPath(tornRibbon(0.315, 0.285, 0.009, WOB_LEFT)),
-  toPath(tornRibbon(0.71, 0.665, 0.009, WOB_RIGHT)),
+  toPath(tornRibbon(0.315, 0.285, DIVIDER_HALF_W, WOB_EDGE_A1, WOB_EDGE_B1)),
+  toPath(tornRibbon(0.71, 0.665, DIVIDER_HALF_W, WOB_EDGE_A2, WOB_EDGE_B2)),
 ];
 
 // Seam center-lines (band-fraction x at top / bottom) — the two near-vertical
@@ -101,8 +112,8 @@ function seamRibbon(seam: { top: number; bot: number }, off: number, halfW: numb
 
 // Swap speed-line streaks: clustered around each seam, running parallel to it
 // (same fraction space as the dividers, so they align at any viewport).
-// Offsets sit just OUTSIDE the black gap so the streaks flank it.
-const STREAK_OFFSETS = [-0.04, -0.021, 0.02, 0.042];
+// Offsets sit clearly OUTSIDE the black gap — never on the seam itself.
+const STREAK_OFFSETS = [-0.056, -0.034, 0.033, 0.057];
 export const STREAK_PATHS: string[] = SEAMS.flatMap((s) =>
   STREAK_OFFSETS.map((off, i) => toPath(seamRibbon(s, off, i % 2 === 0 ? 0.0016 : 0.0028)))
 );

@@ -57,15 +57,13 @@ void main() {
   vec2 uv = vUv;
   float y = uv.y;
 
-  // Near-vertical leaning seams + a little organic wobble.
+  // Near-vertical leaning seams. No wobble here: the black gap must align
+  // statically with the DOM divider ribbon so no energy sits on the seam.
   // vUv.y = 0 at the BOTTOM (WebGL), but the divider geometry's "top" x is at
-  // the top of the band (SVG y-down) — flip so the energy sits ON the dividers.
+  // the top of the band (SVG y-down) — flip so the gap sits ON the dividers.
   float yDown = 1.0 - y;
   float seamL = mix(uSeamLTop, uSeamLBot, yDown);
   float seamR = mix(uSeamRTop, uSeamRBot, yDown);
-  float wob = (noise(vec2(y * 6.0, uTime * 0.15)) - 0.5) * 0.02;
-  seamL += wob;
-  seamR += wob * 0.8;
 
   // Flowing, domain-warped energy.
   vec2 p = uv * vec2(3.0, 2.0);
@@ -101,8 +99,8 @@ void main() {
                 + 0.3 * noise(vec2(y * 30.0, uTime * 3.0));
   // Surge intensifies the rim collision during a swap.
   float clashBoost = 1.0 + uSurge * 3.0;
-  float rimL = smoothstep(0.04, 0.008, abs(sdL));
-  float rimR = smoothstep(0.04, 0.008, abs(sdR));
+  float rimL = smoothstep(0.055, 0.022, abs(sdL));
+  float rimR = smoothstep(0.055, 0.022, abs(sdR));
   vec3 rimColL = (sdL < 0.0) ? uColL : uColC; // left seam: blue | magenta
   vec3 rimColR = (sdR < 0.0) ? uColC : uColR; // right seam: magenta | green
   energy += rimColL * rimL * (0.55 + 0.45 * flicker) * clashBoost;
@@ -122,9 +120,9 @@ void main() {
   float lumE = dot(energy, vec3(0.299, 0.587, 0.114));
   energy = mix(vec3(lumE), energy, satL) * intenL;
 
-  // BLACK torn gap: kill all light inside the divider core so the seam stays
-  // a black gap (the DOM divider ribbon shows through).
-  float gap = min(smoothstep(0.006, 0.016, abs(sdL)), smoothstep(0.006, 0.016, abs(sdR)));
+  // SOLID BLACK gap: kill all light across the full divider width (wider than
+  // the DOM ribbon incl. its torn edges) so the seam is one clean black gap.
+  float gap = min(smoothstep(0.014, 0.024, abs(sdL)), smoothstep(0.014, 0.024, abs(sdR)));
   energy *= gap;
 
   // Calmer for reduced-motion.

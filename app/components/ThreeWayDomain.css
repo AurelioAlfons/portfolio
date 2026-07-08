@@ -50,20 +50,14 @@
   pointer-events: auto;
   /* Contain the energy field's screen blend to the band */
   isolation: isolate;
-  /* Charge-up: muted until the section scrolls into view (shader ramps too) */
-  filter: saturate(0.6);
-  transition: filter 2s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.twd-band.twd-charged {
-  filter: saturate(1);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .twd-band {
-    filter: saturate(1);
-    transition: none;
-  }
+/* Charge-up wrapper: zoom (transform) + saturation (filter) animate on this,
+   driven imperatively from the component. */
+.twd-zoom {
+  position: absolute;
+  inset: 0;
+  will-change: transform, filter;
 }
 
 /* ---- Stage 2: WebGL energy field, blended as light over the panels ---- */
