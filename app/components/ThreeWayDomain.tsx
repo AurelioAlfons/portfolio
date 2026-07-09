@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { animate, motion } from "motion/react";
 import { TECH, type TechKey } from "../lib/techIcons";
-import { SHARDS, toPath, DIVIDER_PATHS, STREAK_PATHS, type ShardRole } from "./domainShards";
+import { mirroredSeams, SEAMS, type Seam, type ShardRole } from "./domainShards";
 import DomainField from "./DomainField";
 import "./ThreeWayDomain.css";
 
@@ -33,9 +33,8 @@ function TechChip({ k }: { k: string }) {
   );
 }
 
-// STAGE 1: static jagged shards only. Each project image is clipped into a
-// fixed slot shard with a placeholder color tint. No energy shader, particles,
-// morph, or transitions yet (those are Stages 2-4).
+// Three-Way Domain showcase: straight panel strips + mirrored boiling ink
+// dividers (\ /) + WebGL energy field + image-only zoom/saturation charge-up.
 export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
   const n = projects.length;
   const [selected, setSelected] = useState(0);
@@ -44,13 +43,11 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
   const [inView, setInView] = useState(false);
   const [seenField, setSeenField] = useState(false); // lazy-init WebGL once near view
   const [dir, setDir] = useState(1); // last swap direction
-  const [swapId, setSwapId] = useState(0); // bumps each swap → drives surge + flash
-  const [swapping, setSwapping] = useState(false); // flash/streaks overlay active
-  const [zoomId, setZoomId] = useState(0); // bumps on scroll-in + swap → zoom/saturate
+  const [swapId, setSwapId] = useState(0); // bumps each swap → shader surge
+  const [zoomId, setZoomId] = useState(0); // bumps on scroll-in + swap → image charge-up
+  const [seams, setSeams] = useState<Seam[]>(SEAMS);
   const movedRef = useRef(false);
   const bandRef = useRef<HTMLDivElement | null>(null);
-  const zoomRef = useRef<HTMLDivElement | null>(null);
-  const swapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Track prefers-reduced-motion + pick a quality tier from the viewport width.
   useEffect(() => {
@@ -66,6 +63,26 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
       mq.removeEventListener("change", update);
       window.removeEventListener("resize", update);
     };
+  }, []);
+
+  // Measure the band so the shader's seams match the rotated ink strokes
+  // (their slope in fraction space depends on the band's aspect ratio).
+  useEffect(() => {
+    const el = bandRef.current;
+    if (!el) return;
+    let lastTop = -1;
+    const update = () => {
+      const r = el.getBoundingClientRect();
+      if (r.width <= 0 || r.height <= 0) return;
+      const next = mirroredSeams(r.width, r.height);
+      if (Math.abs(next[0].top - lastTop) < 0.002) return;
+      lastTop = next[0].top;
+      setSeams(next);
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
   }, []);
 
   // Pause the energy field when the band is off-screen; lazy-init on first sight.
@@ -86,33 +103,27 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
     return () => io.disconnect();
   }, []);
 
-  // Clear the swap timer on unmount.
-  useEffect(() => {
-    return () => {
-      if (swapTimer.current) clearTimeout(swapTimer.current);
-    };
-  }, []);
-
-  // Charge-up: quick zoom-in that eases back out, while the color grade
-  // saturates from faded to full (~1.8s). Plays on scroll-in and every swap.
+  // Charge-up (approved recipe): IMAGE-ONLY deep zoom + saturation ramp —
+  // never scales the band/panels/dividers, so the carousel bounds don't move.
   useEffect(() => {
     if (reduced || zoomId === 0) return;
-    const el = zoomRef.current;
-    if (!el) return;
-    const zoom = animate(
-      el,
-      { scale: [1, 1.07, 1] },
-      { duration: 1.8, ease: "easeOut", times: [0, 0.3, 1] }
+    const imgs = bandRef.current?.querySelectorAll<HTMLElement>(".twd-img");
+    if (!imgs || imgs.length === 0) return;
+    const controls = Array.from(imgs).map((el) =>
+      animate(
+        el,
+        {
+          scale: [1, 1.36, 1],
+          filter: [
+            "saturate(0.45) brightness(0.8)",
+            "saturate(1.45) brightness(1.16)",
+            "saturate(1) brightness(1)",
+          ],
+        },
+        { duration: 5.6, ease: [0.33, 0, 0.2, 1], times: [0, 0.6, 1] }
+      )
     );
-    const sat = animate(
-      el,
-      { filter: ["saturate(0.6)", "saturate(1)"] },
-      { duration: 1.8, ease: "easeOut" }
-    );
-    return () => {
-      zoom.stop();
-      sat.stop();
-    };
+    return () => controls.forEach((c) => c.stop());
   }, [zoomId, reduced]);
 
   if (n === 0) return null;
@@ -125,14 +136,9 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
     if (n < 2) return;
     setSelected((s) => (s + d + n) % n);
     setDir(d);
-    if (reduced) return; // reduced motion: instant switch, no surge/flash
-    // Fire the swap: bumps the shader surge + shows the flash/streaks overlay,
-    // and replays the zoom/saturation charge-up.
-    setSwapId((x) => x + 1);
-    setZoomId((z) => z + 1);
-    setSwapping(true);
-    if (swapTimer.current) clearTimeout(swapTimer.current);
-    swapTimer.current = setTimeout(() => setSwapping(false), 620);
+    if (reduced) return; // reduced motion: instant switch, no surge/charge-up
+    setSwapId((x) => x + 1); // shader surge (colored)
+    setZoomId((z) => z + 1); // image zoom + saturation charge-up
   };
 
   const openLink = (p: Project) => {
@@ -163,7 +169,7 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
     }
   };
 
-  // A tap on a shard: center opens the link, sides slide to center.
+  // A tap on a panel: center opens the link, sides slide to center.
   // Ignore the click if a drag just happened (swipe should not open).
   const onSlotClick = (role: ShardRole, p: Project) => {
     if (movedRef.current) return;
@@ -188,14 +194,38 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
 
   return (
     <div className="twd-root" tabIndex={0} onKeyDown={onKeyDown} aria-roledescription="Project showcase">
-      {/* Shard clip-path definitions (Stage 1 source of truth = domainShards.ts) */}
+      {/* Boiling ink-brush filters: animated turbulence seed = the hand-drawn
+          frame-to-frame jitter. Two variants so the dividers don't boil in sync. */}
       <svg className="twd-defs" aria-hidden="true" focusable="false">
         <defs>
-          {(Object.keys(SHARDS) as ShardRole[]).map((role) => (
-            <clipPath key={role} id={`twd-shard-${role}`} clipPathUnits="objectBoundingBox">
-              <path d={toPath(SHARDS[role])} />
-            </clipPath>
-          ))}
+          <filter id="twd-inkedge" x="-40%" y="-40%" width="180%" height="180%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.05 0.5" numOctaves="2" seed="4" result="n">
+              {!reduced && (
+                <animate
+                  attributeName="seed"
+                  values="4;9;2;7;3;6"
+                  dur="0.42s"
+                  calcMode="discrete"
+                  repeatCount="indefinite"
+                />
+              )}
+            </feTurbulence>
+            <feDisplacementMap in="SourceGraphic" in2="n" scale="16" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+          <filter id="twd-inkedge2" x="-40%" y="-40%" width="180%" height="180%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.055 0.46" numOctaves="2" seed="1" result="n">
+              {!reduced && (
+                <animate
+                  attributeName="seed"
+                  values="1;5;8;3;6;2"
+                  dur="0.5s"
+                  calcMode="discrete"
+                  repeatCount="indefinite"
+                />
+              )}
+            </feTurbulence>
+            <feDisplacementMap in="SourceGraphic" in2="n" scale="16" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
         </defs>
       </svg>
 
@@ -211,28 +241,19 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
         }}
         onDragEnd={handleDragEnd}
       >
-        {/* Zoom/saturation wrapper: charge-up scales this and ramps its filter
-            (imperative animate — no remount, the WebGL canvas survives). */}
-        <div
-          ref={zoomRef}
-          className="twd-zoom"
-          style={{ filter: reduced ? undefined : "saturate(0.6)" }}
-        >
         {slots.map(({ idx, role }) => {
           const p = projects[idx];
-          const clip = `url(#twd-shard-${role})`;
           return (
             <div
               key={role}
               className={`twd-slot twd-${role}`}
-              style={{ clipPath: clip, WebkitClipPath: clip }}
               onClick={() => onSlotClick(role, p)}
               role="button"
               tabIndex={-1}
               aria-label={role === "center" ? `Open ${p.title}` : `Show ${p.title}`}
             >
               {/* Keyed by project id: on swap it remounts and the incoming
-                  project grows/settles into its new slot (Stage 3). */}
+                  project slides/settles into its new slot. */}
               <motion.div
                 key={p.id}
                 className="twd-inner"
@@ -253,7 +274,7 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
                   draggable={false}
                   loading={role === "center" ? undefined : "lazy"}
                 />
-                {/* Cinematic per-panel color grade (under the Stage 2 energy) */}
+                {/* Cinematic per-panel color grade (under the energy field) */}
                 <span className={`twd-grade twd-grade-${role}`} aria-hidden="true" />
                 {role === "center" && <span className="twd-hi" aria-hidden="true" />}
               </motion.div>
@@ -261,55 +282,32 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
           );
         })}
 
-        {/* Thin torn black dividers between the panels */}
-        <svg
-          className="twd-dividers"
-          viewBox="0 0 1 1"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-          focusable="false"
-        >
-          {DIVIDER_PATHS.map((d, i) => (
-            <path key={i} d={d} fill="#000" />
-          ))}
-        </svg>
-
-        {/* Stage 2 — WebGL energy field (Layer A + B), blended over the panels.
-            Stage 3: swapId drives the surge on each project change. */}
+        {/* WebGL energy field (Layer A + B), blended over the panels.
+            swapId drives the (colored) surge; seams follow the ink strokes. */}
         {seenField && (
           <DomainField
             active={inView}
             quality={quality}
             reduced={reduced}
             surge={swapId}
+            seams={seams}
           />
         )}
-        </div>
 
-        {/* Stage 3 — impact flash + speed-line streaks on swap */}
-        {swapping && !reduced && (
-          <div className="twd-swap" key={swapId} aria-hidden="true">
-            <motion.div
-              className="twd-flash"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: [0, 0.9, 0] }}
-              transition={{ duration: 0.34, times: [0, 0.25, 1], ease: "easeOut" }}
-            />
-            {/* Friction light concentrated at the seams, parallel to the dividers */}
-            <motion.svg
-              className="twd-streaks"
-              viewBox="0 0 1 1"
-              preserveAspectRatio="none"
-              initial={{ opacity: 0, x: dir > 0 ? "1.5%" : "-1.5%" }}
-              animate={{ opacity: [0, 0.85, 0], x: dir > 0 ? "-1.5%" : "1.5%" }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-            >
-              {STREAK_PATHS.map((d, i) => (
-                <path key={i} d={d} fill="rgba(255, 255, 255, 0.7)" />
-              ))}
-            </motion.svg>
-          </div>
-        )}
+        {/* Mirrored boiling BLACK ink dividers ( \ / ) with colored seam glow
+            — blue|magenta on the left seam, magenta|green on the right. */}
+        <div className="twd-divider twd-div-l" aria-hidden="true">
+          <span className="twd-ink" />
+          <span className="twd-seam-surge" />
+          <span className="twd-edge twd-edge-el" />
+          <span className="twd-edge twd-edge-er" />
+        </div>
+        <div className="twd-divider twd-div-r" aria-hidden="true">
+          <span className="twd-ink" />
+          <span className="twd-seam-surge" />
+          <span className="twd-edge twd-edge-el" />
+          <span className="twd-edge twd-edge-er" />
+        </div>
       </motion.div>
 
       {/* Caption row (below the band) */}

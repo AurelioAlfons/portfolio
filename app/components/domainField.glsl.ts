@@ -91,27 +91,13 @@ void main() {
     energy += uColCHi * hi * 0.5;
   }
 
-  // Seams: thick torn BLACK gap. No white core — each panel's edge carries a
-  // thin rim-light in its own domain color (blue / magenta / green).
+  // Seams: solid BLACK ink gap (DOM ink strokes render on top). No rim light
+  // here — the colored seam glow lives on the DOM divider edges. NO WHITE.
   float sdL = uv.x - seamL;
   float sdR = uv.x - seamR;
-  float flicker = 0.6 + 0.4 * sin(uTime * 6.0 + y * 20.0)
-                + 0.3 * noise(vec2(y * 30.0, uTime * 3.0));
-  // Surge intensifies the rim collision during a swap.
-  float clashBoost = 1.0 + uSurge * 3.0;
-  float rimL = smoothstep(0.055, 0.022, abs(sdL));
-  float rimR = smoothstep(0.055, 0.022, abs(sdR));
-  vec3 rimColL = (sdL < 0.0) ? uColL : uColC; // left seam: blue | magenta
-  vec3 rimColR = (sdR < 0.0) ? uColC : uColR; // right seam: magenta | green
-  energy += rimColL * rimL * (0.55 + 0.45 * flicker) * clashBoost;
-  energy += rimColR * rimR * (0.55 + 0.45 * flicker) * clashBoost;
 
-  // Swap surge: brighten the center, and send a bright ring outward from the
-  // middle that expands as the surge decays, then settles.
-  energy += uColC * uSurge * 0.35;
-  float ringPos = (1.0 - uSurge) * 0.55;
-  float ripple = smoothstep(0.045, 0.0, abs(abs(uv.x - 0.5) - ringPos)) * uSurge;
-  energy += vec3(1.0, 0.92, 0.96) * ripple * 1.3;
+  // Swap surge: brighten the center domain (colored, never white).
+  energy += uColC * uSurge * 0.4;
 
   // Charge-up: muted -> vivid as uCharge ramps in, then a slow breathe.
   float breathe = uCharge * 0.05 * sin(uTime * 0.45);

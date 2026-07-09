@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { SEAMS } from "./domainShards";
+import { SEAMS, type Seam } from "./domainShards";
 import {
   ENERGY_VERT,
   ENERGY_FRAG,
@@ -23,13 +23,12 @@ const PARTICLE_RGB = {
   left: [0.35, 0.75, 1.0],
   center: [1.0, 0.4, 0.72],
   right: [0.55, 1.0, 0.45],
-  spark: [1.0, 0.96, 0.98],
 };
 
 // uy: 0 = bottom of the band (clip space). The seam's "top" x belongs at the
-// top of the band (SVG y-down), so flip when interpolating.
-function seamAt(uy: number, i: number) {
-  return SEAMS[i].top + (SEAMS[i].bot - SEAMS[i].top) * (1 - uy);
+// top of the band (CSS y-down), so flip when interpolating.
+function seamAt(uy: number, i: number, seams: Seam[]) {
+  return seams[i].top + (seams[i].bot - seams[i].top) * (1 - uy);
 }
 
 // Deterministic PRNG so the particle field is stable across renders.
@@ -43,7 +42,7 @@ function mulberry32(seed: number) {
   };
 }
 
-function buildParticles(count: number): THREE.BufferGeometry | null {
+function buildParticles(count: number, seams: Seam[]): THREE.BufferGeometry | null {
   if (count === 0) return null;
   const rand = mulberry32(1337);
   const pos = new Float32Array(count * 3);
@@ -55,18 +54,25 @@ function buildParticles(count: number): THREE.BufferGeometry | null {
   for (let i = 0; i < count; i++) {
     const y = rand() * 2 - 1;
     const uy = (y + 1) / 2;
-    const sL = seamAt(uy, 0);
-    const sR = seamAt(uy, 1);
+    const sL = seamAt(uy, 0, seams);
+    const sR = seamAt(uy, 1, seams);
     let x: number;
     let rgb: number[];
     let s: number;
 
     if (i % 3 === 0) {
-      // spark: flank a seam, just OUTSIDE the black divider gap
-      const seamX = i % 2 === 0 ? sL : sR;
+      // spark: flank a seam, outside the ink stroke — colored, never white
+      const isLeftSeam = i % 2 === 0;
+      const seamX = isLeftSeam ? sL : sR;
       const side = rand() < 0.5 ? -1 : 1;
-      x = (seamX + side * (0.028 + rand() * 0.02)) * 2 - 1;
-      rgb = PARTICLE_RGB.spark;
+      x = (seamX + side * (0.05 + rand() * 0.02)) * 2 - 1;
+      rgb = isLeftSeam
+        ? side < 0
+          ? PARTICLE_RGB.left
+          : PARTICLE_RGB.center
+        : side < 0
+        ? PARTICLE_RGB.center
+        : PARTICLE_RGB.right;
       s = rand() * 4 + 3;
     } else {
       // half the orbs sit in the (denser) center domain
@@ -105,11 +111,13 @@ function FieldScene({
   reduced,
   surge,
   active,
+  seams,
 }: {
   quality: Quality;
   reduced: boolean;
   surge: number;
   active: boolean;
+  seams: Seam[];
 }) {
   const octaves = quality === "low" ? 3 : 5;
   const count = reduced ? 0 : quality === "low" ? 55 : 170;
@@ -122,7 +130,7 @@ function FieldScene({
   const wasActive = useRef(false);
 
   const planeGeo = useMemo(() => new THREE.PlaneGeometry(2, 2), []);
-  const particleGeo = useMemo(() => buildParticles(count), [count]);
+  const particleGeo = useMemo(() => buildParticles(count, seams), [count, seams]);
 
   const energyUniforms = useMemo(
     () => ({
@@ -143,6 +151,16 @@ function FieldScene({
     [octaves, reduced]
   );
 
+  // Keep the shader's seams aligned to the measured (mirrored) ink strokes.
+  useEffect(() => {
+    const e = energyRef.current;
+    if (!e) return;
+    e.uniforms.uSeamLTop.value = seams[0].top;
+    e.uniforms.uSeamLBot.value = seams[0].bot;
+    e.uniforms.uSeamRTop.value = seams[1].top;
+    e.uniforms.uSeamRBot.value = seams[1].bot;
+  }, [seams]);
+
   const particleUniforms = useMemo(
     () => ({ uTime: { value: 0 }, uPix: { value: 1.5 } }),
     []
@@ -159,11 +177,12 @@ function FieldScene({
       chargeT.current = 0;
     }
     if (surgeVal.current > 0) surgeVal.current = Math.max(0, surgeVal.current - d / 0.55);
-    // Charge-up: restart the ~1.8s power-up ramp each time the section enters view.
+    // Charge-up: restart the power-up ramp each time the section enters view.
+    // Duration matches the 5.6s image zoom/saturation charge-up.
     if (active && !wasActive.current) chargeT.current = 0;
     wasActive.current = active;
     chargeT.current += d;
-    const ct = Math.min(chargeT.current / 1.8, 1);
+    const ct = Math.min(chargeT.current / 5.6, 1);
     const charge = 1 - Math.pow(1 - ct, 3); // ease-out
     const e = energyRef.current;
     if (e) {
@@ -233,11 +252,13 @@ export default function DomainField({
   quality,
   reduced,
   surge,
+  seams = SEAMS,
 }: {
   active: boolean;
   quality: Quality;
   reduced: boolean;
   surge: number;
+  seams?: Seam[];
 }) {
   const [supported] = useState(checkWebGL);
   const [lost, setLost] = useState(false);
@@ -269,7 +290,7 @@ export default function DomainField({
       }}
     >
       {low && <Throttle30 active={active && !reduced} />}
-      <FieldScene quality={quality} reduced={reduced} surge={surge} active={active} />
+      <FieldScene quality={quality} reduced={reduced} surge={surge} active={active} seams={seams} />
     </Canvas>
   );
 }

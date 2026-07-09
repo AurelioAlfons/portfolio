@@ -1,5 +1,6 @@
-/* STAGE 1 — static jagged shard composition only.
-   No energy shader / particles / rain / morph / transitions (Stages 2-4). */
+/* Three-Way Domain: straight panel strips + mirrored boiling ink dividers
+   ( \ / ) + WebGL energy field + image-only zoom charge-up.
+   Approved reference: pipeline/reference/ink-divider-demo.html */
 
 /* Full-height projects section: heading (top) / band (middle) / caption (bottom) */
 .twd-section {
@@ -29,7 +30,7 @@
   outline-offset: 4px;
 }
 
-/* Hidden SVG that holds the shard <clipPath> defs */
+/* Hidden SVG that holds the boiling-ink filter defs */
 .twd-defs {
   position: absolute;
   width: 0;
@@ -37,7 +38,7 @@
   pointer-events: none;
 }
 
-/* ---- The three-shard band (full-bleed, middle band) ---- */
+/* ---- The three-panel band (full-bleed, middle band) ---- */
 .twd-band {
   position: relative;
   width: 100%;
@@ -52,15 +53,11 @@
   isolation: isolate;
 }
 
-/* Charge-up wrapper: zoom (transform) + saturation (filter) animate on this,
-   driven imperatively from the component. */
-.twd-zoom {
-  position: absolute;
-  inset: 0;
-  will-change: transform, filter;
+.twd-band:active {
+  cursor: grabbing;
 }
 
-/* ---- Stage 2: WebGL energy field, blended as light over the panels ---- */
+/* ---- Energy field (WebGL), blended as light over the panels ---- */
 .twd-field {
   position: absolute !important;
   inset: 0;
@@ -76,11 +73,7 @@
   pointer-events: none !important;
 }
 
-.twd-band:active {
-  cursor: grabbing;
-}
-
-/* ---- Panel slots: tall near-vertical leaning strips, clipped by SVG ---- */
+/* ---- Panel slots: straight strips (the slant lives in the ink dividers) ---- */
 .twd-slot {
   position: absolute;
   top: 0;
@@ -89,30 +82,28 @@
   isolation: isolate; /* contain the grade blend to this panel */
 }
 
-/* Center: focused project, a bit wider (~40%), on top */
+.twd-left {
+  left: 0;
+  width: 31%;
+  z-index: 2;
+  cursor: pointer;
+}
+
 .twd-center {
-  left: 30%;
-  width: 40%;
+  left: 29%;
+  width: 42%;
   z-index: 3;
   cursor: pointer;
 }
 
-/* Sides: ~30% each, bleeding off the viewport edges, tucked behind center */
-.twd-left {
-  left: -6%;
-  width: 40%;
-  z-index: 2;
-  cursor: pointer;
-}
-
 .twd-right {
-  right: -6%;
-  width: 40%;
+  left: 69%;
+  width: 31%;
   z-index: 2;
   cursor: pointer;
 }
 
-/* Inner wrapper animated on swap (Stage 3): grows/settles into the slot */
+/* Inner wrapper animated on swap: slides/settles into the slot */
 .twd-inner {
   position: absolute;
   inset: 0;
@@ -125,6 +116,8 @@
   object-fit: cover;
   display: block;
   user-select: none;
+  /* Image-only charge-up zoom animates transform + filter on THIS element */
+  will-change: transform, filter;
 }
 
 /* Center brighter/focused, sides pushed back (dimmer) */
@@ -172,42 +165,176 @@
   background: radial-gradient(circle at 50% 34%, rgba(255, 255, 255, 0.45), transparent 55%);
 }
 
-/* ---- Thin torn black dividers between panels ---- */
-.twd-dividers {
+/* Dark edge fades toward each seam: hide the straight panel joints so the
+   ink strokes can stay demo-proportioned (the joint sits in near-black). */
+.twd-left::after,
+.twd-center::before,
+.twd-center::after,
+.twd-right::before {
+  content: "";
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 5;
+  top: 0;
+  bottom: 0;
+  width: 64px;
+  z-index: 2;
   pointer-events: none;
 }
 
-/* ---- Stage 3: swap impact flash + speed-line streaks ---- */
-.twd-swap {
-  position: absolute;
-  inset: 0;
-  z-index: 7;
-  pointer-events: none;
-  overflow: hidden;
+.twd-left::after {
+  right: 0;
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 2, 0.94));
 }
 
-.twd-flash {
+.twd-center::before {
+  left: 0;
+  background: linear-gradient(270deg, transparent, rgba(0, 0, 2, 0.94));
+}
+
+.twd-center::after {
+  right: 0;
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 2, 0.94));
+}
+
+.twd-right::before {
+  left: 0;
+  background: linear-gradient(270deg, transparent, rgba(0, 0, 2, 0.94));
+}
+
+/* ---- Mirrored BLACK INK dividers:  \  /  (boiling edges, no white) ---- */
+.twd-divider {
+  position: absolute;
+  top: -26%;
+  height: 152%;
+  /* demo-proportioned stroke; the edge fades above hide any joint peeking
+     past the rotated stroke near the band's top/bottom */
+  width: calc(6vh + 44px);
+  z-index: 7; /* above the energy canvas: ink blocks all light */
+  pointer-events: none;
+}
+
+.twd-div-l {
+  left: 30%;
+  transform: translateX(-50%) rotate(-9deg); /* \ */
+}
+
+.twd-div-r {
+  left: 70%;
+  transform: translateX(-50%) rotate(9deg); /* / */
+}
+
+.twd-ink {
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    circle at 50% 50%,
-    rgba(255, 255, 255, 0.9),
-    rgba(255, 240, 250, 0.35) 40%,
-    transparent 72%
+  filter: url(#twd-inkedge);
+  background:
+    repeating-linear-gradient(90deg, #000 0 3px, #050507 3px 5px, #000 5px 9px, rgba(0, 0, 0, 0.85) 9px 11px),
+    linear-gradient(180deg, #020203 0%, #000 55%);
+}
+
+.twd-div-r .twd-ink {
+  filter: url(#twd-inkedge2);
+}
+
+/* downward ink drip = gravity */
+.twd-ink::after {
+  content: "";
+  position: absolute;
+  inset: -12% -30%;
+  filter: inherit;
+  opacity: 0.7;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 6px,
+    rgba(0, 0, 0, 0.92) 6px 8px,
+    transparent 8px 16px
   );
+  animation: twd-drip 3.6s linear infinite;
 }
 
-.twd-streaks {
+/* COLORED clash rim-light on the seam edges (no white) */
+.twd-edge {
+  position: absolute;
+  top: -5%;
+  height: 110%;
+  width: 10px;
+  filter: blur(6px);
+  mix-blend-mode: screen;
+  z-index: 2;
+  animation: twd-flick 1.4s ease-in-out infinite;
+}
+
+.twd-edge-el {
+  left: -5px;
+}
+
+.twd-edge-er {
+  right: -5px;
+  animation-delay: 0.35s;
+}
+
+.twd-div-l .twd-edge-el {
+  background: linear-gradient(180deg, #29d3ff, transparent 85%);
+}
+
+.twd-div-l .twd-edge-er {
+  background: linear-gradient(180deg, #ff45b0, transparent 85%);
+}
+
+.twd-div-r .twd-edge-el {
+  background: linear-gradient(180deg, #ff45b0, transparent 85%);
+}
+
+.twd-div-r .twd-edge-er {
+  background: linear-gradient(180deg, #39e35a, transparent 85%);
+}
+
+/* periodic colored energy surge along the whole seam */
+.twd-seam-surge {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  filter: blur(0.6px);
+  mix-blend-mode: screen;
+  z-index: 1;
+  opacity: 0;
+  animation: twd-surge 2.4s ease-in-out infinite;
+}
+
+.twd-div-l .twd-seam-surge {
+  background: linear-gradient(90deg, rgba(41, 211, 255, 0.5), transparent 40%, transparent 60%, rgba(255, 69, 176, 0.5));
+}
+
+.twd-div-r .twd-seam-surge {
+  background: linear-gradient(90deg, rgba(255, 69, 176, 0.5), transparent 40%, transparent 60%, rgba(57, 227, 90, 0.5));
+  animation-delay: 1.1s;
+}
+
+@keyframes twd-drip {
+  from {
+    background-position-y: 0;
+  }
+  to {
+    background-position-y: 24px;
+  }
+}
+
+@keyframes twd-flick {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes twd-surge {
+  0%,
+  55%,
+  100% {
+    opacity: 0;
+  }
+  72% {
+    opacity: 0.85;
+  }
 }
 
 /* ---- Caption row ---- */
@@ -264,7 +391,7 @@
   font-size: 16px;
 }
 
-/* Explicit open button — mobile only (desktop opens via center shard click) */
+/* Explicit open button — mobile only (desktop opens via center panel click) */
 .twd-open-btn {
   display: none;
   margin-top: 16px;
@@ -276,7 +403,7 @@
   font-weight: 600;
 }
 
-/* ---- Mobile: center dominant + small side peeks ---- */
+/* ---- Mobile: same layout, shorter band, ink width scaled to band height ---- */
 @media (max-width: 768px) {
   .twd-heading {
     padding-top: 6rem;
@@ -286,22 +413,27 @@
     height: 38vh;
   }
 
-  .twd-center {
-    left: 29%;
-    width: 42%;
+  .twd-divider {
+    width: 64px; /* keep the strokes slim on narrow screens */
   }
 
-  .twd-left {
-    left: -16%;
-    width: 46%;
-  }
-
-  .twd-right {
-    right: -16%;
-    width: 46%;
+  .twd-left::after,
+  .twd-center::before,
+  .twd-center::after,
+  .twd-right::before {
+    width: 40px;
   }
 
   .twd-open-btn {
     display: inline-block;
+  }
+}
+
+/* ---- Reduced motion: static, full-saturation, fully usable ---- */
+@media (prefers-reduced-motion: reduce) {
+  .twd-edge,
+  .twd-seam-surge,
+  .twd-ink::after {
+    animation: none !important;
   }
 }
