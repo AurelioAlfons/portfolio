@@ -33,7 +33,7 @@ const projects: Project[] = [
     id: 4,
     title: "WatchWise AI",
     description:
-      "AI-powered movie recommendation app using Gemini + TMDB, built with React, TypeScript, Tailwind & Docker.",
+      "AI movie recommendations powered by Gemini + TMDB.",
     link: "https://watchwise-ai-puce.vercel.app",
     image: "/images/WatchWise.jpeg",
     tech: ["react", "typescript", "tailwind", "docker", "gemini", "tmdb"],
