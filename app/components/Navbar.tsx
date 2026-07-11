@@ -1,5 +1,6 @@
 "use client";
 
+// the navbar => three links with a gooey particle burst when you click one
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import "./GooeyNav.css";
@@ -18,6 +19,7 @@ export default function Navbar() {
 
   const [activeIndex, setActiveIndex] = useState(0);
 
+  // the particle burst settings => how many, how far they fly, how long they live
   const animationTime = 700;
   const particleCount = 75;
   const particleDistances: [number, number] = [1400, 10];
@@ -25,8 +27,10 @@ export default function Navbar() {
   const timeVariance = 700;
   const colors = [1, 2, 3, 1, 2, 3, 1, 4];
 
+  // little randomness helper so no two particles fly the same
   const noise = (n = 1) => n / 2 - Math.random() * n;
 
+  // spreads the particles in a circle => each one gets its own angle
   const getXY = (distance: number, pointIndex: number, totalPoints: number) => {
     const angle =
       ((360 + noise(8)) / totalPoints) * pointIndex * (Math.PI / 180);
@@ -34,6 +38,7 @@ export default function Navbar() {
     return [distance * Math.cos(angle), distance * Math.sin(angle)];
   };
 
+  // one particle => where it starts, where it lands, its color and spin
   const createParticle = (i: number, t: number, d: [number, number], r: number) => {
     const rotate = noise(r / 10);
 
@@ -47,6 +52,7 @@ export default function Navbar() {
     };
   };
 
+  // spawns all the particles as tiny spans => css does the actual flying
   const makeParticles = (element: HTMLSpanElement) => {
     const bubbleTime = animationTime * 2 + timeVariance;
     element.style.setProperty("--time", `${bubbleTime}ms`);
@@ -88,6 +94,7 @@ export default function Navbar() {
     }
   };
 
+  // moves the goo blob + white text so they sit exactly on the active link
   const updateEffectPosition = (element: HTMLElement) => {
     if (!containerRef.current || !filterRef.current || !textRef.current) return;
 
@@ -107,6 +114,7 @@ export default function Navbar() {
     textRef.current.innerText = element.innerText;
   };
 
+  // click a link => move the blob there and fire the particles
   const handleClick = (
     e: React.MouseEvent<HTMLAnchorElement>,
     index: number
@@ -130,6 +138,7 @@ export default function Navbar() {
     }
   };
 
+  // on load + on resize => keep the blob glued to the active link
   useEffect(() => {
     if (!navRef.current || !containerRef.current) return;
 

@@ -1,9 +1,11 @@
 "use client";
 
+// the projects section => heading up top, the three-way domain carousel below
 import { motion } from "motion/react";
 import ThreeWayDomain, { type Project } from "./ThreeWayDomain";
 import { setFluidTheme } from "../lib/fluidTheme";
 
+// the projects list => add a new one here and the carousel just picks it up
 const projects: Project[] = [
   {
     id: 1,
@@ -44,6 +46,7 @@ export default function ProjectSection() {
   return (
     <motion.section
       id="projects"
+      // scrolled here => switch the fluid bg to the cool projects colors
       onViewportEnter={() => setFluidTheme("projects")}
       viewport={{ once: false, amount: 0.35 }}
       className="twd-section relative z-20000 text-white"

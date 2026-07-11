@@ -1,8 +1,10 @@
+// how we tell the fluid background to change color per section
 export type FluidTheme = {
   backColor: { r: number; g: number; b: number };
   palette: { h: number; s: number; v: number }[] | null;
 };
 
+// one color recipe per section => bg color + what colors the splats can be
 export const FLUID_THEMES = {
   home: {
     backColor: { r: 0, g: 0, b: 0 },
@@ -28,6 +30,7 @@ export const FLUID_THEMES = {
 
 export type FluidThemeName = keyof typeof FLUID_THEMES;
 
+// the fluid sim lives in an iframe, so we can't just call it => postMessage it
 export function setFluidTheme(theme: FluidThemeName) {
   const iframe = document.querySelector<HTMLIFrameElement>(
     'iframe[src="/fluid/index.html"]'

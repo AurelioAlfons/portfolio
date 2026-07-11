@@ -1,5 +1,6 @@
 "use client";
 
+// the footer => my socials + a little copyright line
 import { motion } from "motion/react";
 import { FaGithub, FaLinkedin, FaEnvelope } from "react-icons/fa";
 

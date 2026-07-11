@@ -1,5 +1,6 @@
 "use client";
 
+// the resume card => a little pdf card that tilts in 3d, plus view/download buttons
 import { useRef } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
 import { FaFileAlt, FaDownload, FaExternalLinkAlt } from "react-icons/fa";
@@ -7,9 +8,11 @@ import { FaFileAlt, FaDownload, FaExternalLinkAlt } from "react-icons/fa";
 export default function ResumeCard() {
   const cardRef = useRef<HTMLDivElement | null>(null);
 
+  // all the 3d tilt math lives here => x/y is where the mouse is on the card (-0.5 to 0.5)
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
+  // mouse position becomes rotation, springs make it feel bouncy instead of stiff
   const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [14, -14]), {
     stiffness: 200,
     damping: 20,
@@ -18,9 +21,11 @@ export default function ResumeCard() {
     stiffness: 200,
     damping: 20,
   });
+  // the purple glow follows the mouse too
   const glowX = useTransform(x, [-0.5, 0.5], [0, 100]);
   const glowY = useTransform(y, [-0.5, 0.5], [0, 100]);
 
+  // grabs the mouse position => this is what tilts the card in 3d
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = cardRef.current?.getBoundingClientRect();
     if (!rect) return;
@@ -28,6 +33,7 @@ export default function ResumeCard() {
     y.set((e.clientY - rect.top) / rect.height - 0.5);
   };
 
+  // mouse gone => card settles back flat
   const handleMouseLeave = () => {
     x.set(0);
     y.set(0);

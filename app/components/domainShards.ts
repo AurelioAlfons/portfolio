@@ -1,27 +1,20 @@
-// Divider / seam geometry for the three domain slots.
-//
-// FINAL POLISH (approved, see pipeline/reference/ink-divider-demo.html):
-// the dividers are MIRRORED black ink strokes — left leans \ , right leans / —
-// rendered as rotated DOM elements with boiling feTurbulence edges. The panels
-// themselves are straight strips; all slant comes from the ink strokes.
-//
-// The WebGL energy field still needs the seam lines (region split + black gap
-// + particle placement). Because the ink strokes rotate in PIXEL space, their
-// slope in band-fraction space depends on the band's aspect ratio — so the
-// component measures the band and derives the seams with mirroredSeams().
+// the seam math => where the two dividers sit and how much they lean.
+// the ink strokes lean \ and / in pixels, but the shader thinks in 0..1
+// band coordinates => so we convert the angle based on the band's real size,
+// and everything (ink, energy, particles) lines up on the same two lines
 
 export type ShardRole = "left" | "center" | "right";
 
 export type Seam = { top: number; bot: number };
 
-// Where the two seams cross the band's vertical center (band-fraction x).
+// the dividers cross the middle at 30% and 70% of the band width
 export const SEAM_POS = [0.3, 0.7];
 
-// Ink stroke rotation (degrees). Left divider -9deg = \ , right +9deg = / .
+// how much the ink strokes lean => -9deg looks like \ , +9deg looks like /
 export const SEAM_ANGLE_DEG = 9;
 
-// Seam lines in band-fraction space for a band of the given pixel size.
-// Left seam \ : top-left, bottom-right. Right seam / : mirrored.
+// turn the lean into actual seam lines for a band of this pixel size
+// => each seam is just "x at the top" and "x at the bottom"
 export function mirroredSeams(bandW: number, bandH: number): Seam[] {
   const dx = (Math.tan((SEAM_ANGLE_DEG * Math.PI) / 180) * (bandH / 2)) / bandW;
   return [
@@ -30,5 +23,5 @@ export function mirroredSeams(bandW: number, bandH: number): Seam[] {
   ];
 }
 
-// Fallback for before the band has been measured (desktop-ish aspect).
+// default seams before we've measured the real band => desktop-ish guess
 export const SEAMS: Seam[] = mirroredSeams(1400, 570);

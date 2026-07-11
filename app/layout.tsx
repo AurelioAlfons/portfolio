@@ -1,3 +1,4 @@
+// root layout => puts the fluid background behind everything and the site on top
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -26,7 +27,7 @@ export default function RootLayout({
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="relative min-h-screen overflow-x-hidden bg-black text-white">
         
-        {/* BACKGROUND */}
+        {/* BACKGROUND => the fluid sim lives in its own iframe, pinned behind everything */}
         <iframe
           src="/fluid/index.html"
           className="fixed inset-0 z-0 h-screen w-screen border-none"
@@ -35,7 +36,8 @@ export default function RootLayout({
         {/* OPTIONAL OVERLAY */}
         <div className="pointer-events-none fixed inset-0 z-10" />
 
-        {/* CONTENT */}
+        {/* CONTENT => the trick: this layer ignores clicks so the mouse reaches the fluid,
+            and anything clickable turns itself back on with pointer-events-auto */}
         <div className="pointer-events-none relative z-20 min-h-screen">
           {children}
         </div>

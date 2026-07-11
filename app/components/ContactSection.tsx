@@ -1,5 +1,6 @@
 "use client";
 
+// the contact section => the form on the left + resume card on the right
 import { useState } from "react";
 import { motion } from "motion/react";
 import Footer from "./Footer";
@@ -12,20 +13,24 @@ const columnVariants = {
 } as const;
 
 export default function ContactSection() {
+  // this holds the form stuff => email, subject, message
   const [form, setForm] = useState({
     email: "",
     subject: "",
     message: "",
   });
 
+  // true while the email is flying => disables the button so no double sends
   const [isSending, setIsSending] = useState(false);
 
+  // any input changes => update just that field by its name
   const handleFormChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // hit send => throw the form at our api so it emails me
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSending(true);
@@ -44,6 +49,7 @@ export default function ContactSection() {
       }
 
       alert("Message sent!");
+      // wipe the form so it's fresh for the next message
       setForm({ email: "", subject: "", message: "" });
     } catch {
       alert("Failed to send message.");
@@ -55,6 +61,7 @@ export default function ContactSection() {
   return (
     <motion.section
       id="contact"
+      // scrolled here => switch the fluid bg to the warm contact colors
       onViewportEnter={() => setFluidTheme("contact")}
       viewport={{ once: false, amount: 0.3 }}
       className="relative z-30 flex min-h-screen flex-col justify-between overflow-hidden px-4 py-16 text-white sm:px-6 sm:py-20 md:h-screen md:px-8 md:py-28"

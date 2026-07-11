@@ -1,5 +1,6 @@
 "use client";
 
+// the music card => just my spotify playlist in a nice frame
 import { motion } from "motion/react";
 
 export default function MusicPlayer() {
@@ -15,6 +16,7 @@ export default function MusicPlayer() {
         Now Playing
       </p>
 
+      {/* spotify handles the actual playing => we just embed it */}
       <div className="mt-4 h-85 w-full overflow-hidden rounded-2xl sm:h-105 md:h-125">
         <iframe
           src="https://open.spotify.com/embed/playlist/0B56I3kjyQNylz8s6bjFUy?utm_source=generator&theme=0"

@@ -1,5 +1,6 @@
 "use client";
 
+// the tech marquee => logos scrolling by so you know what i work with
 import { motion } from "motion/react";
 import {
   SiMysql,
@@ -40,6 +41,7 @@ const techs = [
 ];
 
 export default function TechMarquee() {
+  // doubled list => when the first half scrolls out, the copy is right behind it, so it loops clean
   const repeatedTechs = [...techs, ...techs];
 
   return (
@@ -52,6 +54,7 @@ export default function TechMarquee() {
     >
       <div className="relative mx-auto max-w-7xl overflow-hidden rounded-2xl bg-black/20 backdrop-blur-sm">
 
+        {/* dark fades on both ends so the logos melt in and out instead of getting cut off */}
         <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-12 bg-linear-to-r from-black via-black/80 to-transparent sm:w-24 md:w-72" />
 
         <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-12 bg-linear-to-l from-black via-black/80 to-transparent sm:w-24 md:w-72" />

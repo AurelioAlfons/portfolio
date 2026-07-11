@@ -1,3 +1,4 @@
+// the tech chip lookup => tech name in, icon + brand color out
 import type { IconType } from "react-icons";
 import {
   SiReact,

@@ -1,9 +1,11 @@
 "use client";
 
+// the intro card => my name, a short pitch, two buttons, socials
 import { motion } from "motion/react";
 import { FaGithub, FaLinkedin, FaEnvelope } from "react-icons/fa";
 import { setFluidTheme } from "../lib/fluidTheme";
 
+// parent waits a beat, then the kids fade in one after another
 const containerVariants = {
   hidden: {},
   show: {
@@ -22,6 +24,7 @@ export default function IntroSection() {
       variants={containerVariants}
       initial="hidden"
       animate="show"
+      // scrolling back home => flip the fluid bg back to the home colors
       onViewportEnter={() => setFluidTheme("home")}
       viewport={{ once: false, amount: 0.6 }}
       className="flex h-full flex-col justify-center rounded-3xl border border-white/10 bg-black/55 p-6 text-left shadow-2xl backdrop-blur-md sm:p-8 md:p-12"
@@ -38,9 +41,7 @@ export default function IntroSection() {
         variants={itemVariants}
         className="mt-6 max-w-xl text-lg leading-8 text-gray-300"
       >
-        I’m a junior software developer. I like to build cool projects and
-        design websites. I also enjoy music. Feel free to send me a message,
-        keen to collaborate.
+        Emerging software developer who enjoys building cool projects and exploring AI, LLMs, and automation. Always learning, experimenting.
       </motion.p>
 
     <motion.div variants={itemVariants} className="mt-8 flex flex-wrap gap-3 sm:gap-4">

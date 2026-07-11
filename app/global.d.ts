@@ -1,3 +1,4 @@
+// tells typescript about the meshline elements we use in r3f scenes
 import type { Object3DNode } from "@react-three/fiber";
 import { MeshLineGeometry, MeshLineMaterial } from "meshline";
 

@@ -1,3 +1,4 @@
+// the contact api => takes the form and emails it to me with resend
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
@@ -6,6 +7,7 @@ export async function POST(req: Request) {
     const resend = new Resend(process.env.RESEND_API_KEY);
     const { email, subject, message } = await req.json();
 
+    // somebody skipped a field => tell them off nicely
     if (!email || !subject || !message) {
       return NextResponse.json(
         { error: "Missing fields" },
@@ -13,6 +15,7 @@ export async function POST(req: Request) {
       );
     }
 
+    // replyTo is their email => i can just hit reply in gmail
     await resend.emails.send({
       from: "Portfolio <onboarding@resend.dev>",
       to: process.env.CONTACT_EMAIL!,

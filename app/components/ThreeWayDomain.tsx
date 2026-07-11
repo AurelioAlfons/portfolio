@@ -1,5 +1,7 @@
 "use client";
 
+// the 3-panel project carousel => center is the focused project, sides are prev/next,
+// black ink dividers between them and the webgl energy glowing over everything
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { animate, motion } from "motion/react";
 import { TECH, type TechKey } from "../lib/techIcons";
@@ -16,11 +18,11 @@ export type Project = {
   tech: string[]; // keys into TECH
 };
 
-// Same swipe feel as Carousel.tsx (offset/velocity).
+// how far (or how fast) you have to drag before it counts as a swipe
 const DRAG_BUFFER = 40;
 const VELOCITY_THRESHOLD = 500;
 
-// One tech chip. Falls back to text-only when a tech has no icon / unknown key.
+// one tech chip => icon + name, or just the name if there's no clean icon
 function TechChip({ k }: { k: string }) {
   const t = TECH[k as TechKey];
   if (!t) return <span className="twd-chip">{k}</span>;
@@ -33,23 +35,22 @@ function TechChip({ k }: { k: string }) {
   );
 }
 
-// Three-Way Domain showcase: straight panel strips + mirrored boiling ink
-// dividers (\ /) + WebGL energy field + image-only zoom/saturation charge-up.
 export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
   const n = projects.length;
+  // all the state => which project is focused + a bunch of animation triggers
   const [selected, setSelected] = useState(0);
-  const [reduced, setReduced] = useState(false);
-  const [quality, setQuality] = useState<"high" | "low">("high");
+  const [reduced, setReduced] = useState(false); // user asked for less motion
+  const [quality, setQuality] = useState<"high" | "low">("high"); // phones get the light version
   const [inView, setInView] = useState(false);
-  const [seenField, setSeenField] = useState(false); // lazy-init WebGL once near view
-  const [dir, setDir] = useState(1); // last swap direction
-  const [swapId, setSwapId] = useState(0); // bumps each swap → shader surge
-  const [zoomId, setZoomId] = useState(0); // bumps on scroll-in + swap → image charge-up
+  const [seenField, setSeenField] = useState(false); // don't boot webgl until we're close
+  const [dir, setDir] = useState(1); // which way the last swap went
+  const [swapId, setSwapId] = useState(0); // counts swaps => the shader surges when it changes
+  const [zoomId, setZoomId] = useState(0); // counts charge-ups => zoom replays when it changes
   const [seams, setSeams] = useState<Seam[]>(SEAMS);
   const movedRef = useRef(false);
   const bandRef = useRef<HTMLDivElement | null>(null);
 
-  // Track prefers-reduced-motion + pick a quality tier from the viewport width.
+  // check reduced-motion + decide phone or desktop quality
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     const update = () => {
@@ -65,8 +66,8 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
     };
   }, []);
 
-  // Measure the band so the shader's seams match the rotated ink strokes
-  // (their slope in fraction space depends on the band's aspect ratio).
+  // measure the band => the ink strokes rotate in pixels, so the shader needs
+  // to know the band's shape to draw its seams at the exact same angle
   useEffect(() => {
     const el = bandRef.current;
     if (!el) return;
@@ -85,7 +86,7 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
     return () => ro.disconnect();
   }, []);
 
-  // Pause the energy field when the band is off-screen; lazy-init on first sight.
+  // watch the scroll => pause the webgl when we're off-screen, charge up when we arrive
   useEffect(() => {
     const el = bandRef.current;
     if (!el) return;
@@ -103,8 +104,8 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
     return () => io.disconnect();
   }, []);
 
-  // Charge-up (approved recipe): IMAGE-ONLY deep zoom + saturation ramp —
-  // never scales the band/panels/dividers, so the carousel bounds don't move.
+  // the charge-up => slow zoom into the images while colors go faded -> vivid.
+  // only the images scale, never the panels, so nothing on the page shifts
   useEffect(() => {
     if (reduced || zoomId === 0) return;
     const imgs = bandRef.current?.querySelectorAll<HTMLElement>(".twd-img");
@@ -132,19 +133,22 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
   const next = (selected + 1) % n;
   const current = projects[selected];
 
+  // move to the next/prev project => the % math loops it around forever
   const go = (d: number) => {
     if (n < 2) return;
     setSelected((s) => (s + d + n) % n);
     setDir(d);
-    if (reduced) return; // reduced motion: instant switch, no surge/charge-up
+    if (reduced) return; // reduced motion => just switch, no fireworks
     setSwapId((x) => x + 1); // shader surge (colored)
     setZoomId((z) => z + 1); // image zoom + saturation charge-up
   };
 
+  // open the project in a new tab
   const openLink = (p: Project) => {
     window.open(p.link, "_blank", "noopener,noreferrer");
   };
 
+  // drag ended => was it far or fast enough to count as a swipe?
   const handleDragEnd = (
     _: unknown,
     info: { offset: { x: number }; velocity: { x: number } }
@@ -159,6 +163,7 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
     if (d !== 0) go(d);
   };
 
+  // arrow keys work too => keyboard folks can browse projects
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "ArrowLeft") {
       e.preventDefault();
@@ -169,15 +174,15 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
     }
   };
 
-  // A tap on a panel: center opens the link, sides slide to center.
-  // Ignore the click if a drag just happened (swipe should not open).
+  // tap a panel => center opens the project, sides bring that one to center.
+  // if you were just swiping we ignore the click so a swipe never opens a tab
   const onSlotClick = (role: ShardRole, p: Project) => {
     if (movedRef.current) return;
     if (role === "center") openLink(p);
     else go(role === "left" ? -1 : 1);
   };
 
-  // Which projects sit in which slot (defensive for small n).
+  // figure out who sits where => prev on the left, selected center, next right
   const slots: { idx: number; role: ShardRole }[] =
     n === 1
       ? [{ idx: selected, role: "center" }]
@@ -194,8 +199,8 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
 
   return (
     <div className="twd-root" tabIndex={0} onKeyDown={onKeyDown} aria-roledescription="Project showcase">
-      {/* Boiling ink-brush filters: animated turbulence seed = the hand-drawn
-          frame-to-frame jitter. Two variants so the dividers don't boil in sync. */}
+      {/* the boil filters => the animated seed makes the ink edges jitter every
+          frame like hand-drawn anime. two versions so the dividers don't sync up */}
       <svg className="twd-defs" aria-hidden="true" focusable="false">
         <defs>
           <filter id="twd-inkedge" x="-40%" y="-40%" width="180%" height="180%">
@@ -252,8 +257,8 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
               tabIndex={-1}
               aria-label={role === "center" ? `Open ${p.title}` : `Show ${p.title}`}
             >
-              {/* Keyed by project id: on swap it remounts and the incoming
-                  project slides/settles into its new slot. */}
+              {/* keyed by project id => on swap react remounts this, which is
+                  what makes the incoming project slide into place */}
               <motion.div
                 key={p.id}
                 className="twd-inner"
@@ -274,7 +279,7 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
                   draggable={false}
                   loading={role === "center" ? undefined : "lazy"}
                 />
-                {/* Cinematic per-panel color grade (under the energy field) */}
+                {/* the color grade => tints each panel its domain color (blue/magenta/green) */}
                 <span className={`twd-grade twd-grade-${role}`} aria-hidden="true" />
                 {role === "center" && <span className="twd-hi" aria-hidden="true" />}
               </motion.div>
@@ -282,8 +287,7 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
           );
         })}
 
-        {/* WebGL energy field (Layer A + B), blended over the panels.
-            swapId drives the (colored) surge; seams follow the ink strokes. */}
+        {/* the webgl energy => flowing color fields + floating particles over the panels */}
         {seenField && (
           <DomainField
             active={inView}
@@ -294,8 +298,8 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
           />
         )}
 
-        {/* Mirrored boiling BLACK ink dividers ( \ / ) with colored seam glow
-            — blue|magenta on the left seam, magenta|green on the right. */}
+        {/* the ink dividers => two black brush strokes leaning \ and /,
+            each edge glows its neighbor's color (blue|magenta, magenta|green) */}
         <div className="twd-divider twd-div-l" aria-hidden="true">
           <span className="twd-ink" />
           <span className="twd-seam-surge" />
@@ -310,7 +314,7 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
         </div>
       </motion.div>
 
-      {/* Caption row (below the band) */}
+      {/* the caption => name, short blurb, tech chips for whatever's in the center */}
       <motion.div
         key={current.id}
         className="twd-caption"

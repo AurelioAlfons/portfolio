@@ -1,8 +1,7 @@
-// GLSL for the Domain energy field (Stage 2). Written for three's default
-// GLSL ES 1.0 ShaderMaterial. The quad is drawn straight in clip space (the
-// vertex shader ignores the camera), so it always fills the band.
+// the shaders => tiny programs the gpu runs for every pixel of the energy canvas.
+// this is where the flowing color fields actually get painted
 
-// --- Energy field (Layer A): three colliding domains + seam clash ---
+// vertex shader => just stretches one quad over the whole band, no camera math
 export const ENERGY_VERT = /* glsl */ `
 varying vec2 vUv;
 void main() {
@@ -11,6 +10,7 @@ void main() {
 }
 `;
 
+// fragment shader => decides the color of every single pixel in the band
 export const ENERGY_FRAG = /* glsl */ `
 precision highp float;
 varying vec2 vUv;
@@ -27,6 +27,7 @@ uniform float uReduced;
 uniform float uSurge;  // 0..1 swap surge, decays after each transition
 uniform float uCharge; // 0..1 power-up ramp when the section scrolls into view
 
+// hash + noise + fbm => the classic random-smoke recipe, layered noise on noise
 float hash(vec2 p) {
   p = fract(p * vec2(123.34, 456.21));
   p += dot(p, p + 45.32);
@@ -57,15 +58,14 @@ void main() {
   vec2 uv = vUv;
   float y = uv.y;
 
-  // Near-vertical leaning seams. No wobble here: the black gap must align
-  // statically with the DOM divider ribbon so no energy sits on the seam.
-  // vUv.y = 0 at the BOTTOM (WebGL), but the divider geometry's "top" x is at
-  // the top of the band (SVG y-down) — flip so the gap sits ON the dividers.
+  // figure out where the two seams are at this pixel's height.
+  // heads up: webgl counts y from the bottom, our divider math counts from
+  // the top => flip it or the seams lean the wrong way (learned that one)
   float yDown = 1.0 - y;
   float seamL = mix(uSeamLTop, uSeamLBot, yDown);
   float seamR = mix(uSeamRTop, uSeamRBot, yDown);
 
-  // Flowing, domain-warped energy.
+  // the flowing energy => noise warped by more noise, drifting over time
   vec2 p = uv * vec2(3.0, 2.0);
   float t = uTime * 0.12;
   vec2 warp = vec2(
@@ -75,7 +75,8 @@ void main() {
   float e = fbm(p + warp * 1.6 + vec2(t * 0.6, 0.0), uOctaves);
   e = pow(clamp(e, 0.0, 1.0), 1.6);
 
-  // Region base color + brightness (center dominates).
+  // which side of the seams are we on? => that decides the color.
+  // center burns brightest, it's the star of the show
   vec3 col;
   float bright;
   bool isCenter = false;
@@ -85,33 +86,31 @@ void main() {
 
   vec3 energy = col * e * bright;
 
-  // Center: sweeping white-hot highlights, more turbulence.
+  // center only => white-hot highlights sweeping through the magenta
   if (isCenter) {
     float hi = smoothstep(0.6, 1.0, fbm(p * 1.5 + vec2(-t * 1.2, t), uOctaves));
     energy += uColCHi * hi * 0.5;
   }
 
-  // Seams: solid BLACK ink gap (DOM ink strokes render on top). No rim light
-  // here — the colored seam glow lives on the DOM divider edges. NO WHITE.
+  // signed distance to each seam => used to carve the black gaps below
   float sdL = uv.x - seamL;
   float sdR = uv.x - seamR;
 
-  // Swap surge: brighten the center domain (colored, never white).
+  // project just swapped => the center flares up for a moment (colored, never white)
   energy += uColC * uSurge * 0.4;
 
-  // Charge-up: muted -> vivid as uCharge ramps in, then a slow breathe.
+  // the charge-up => colors start washed out, ramp to full, then breathe slowly
   float breathe = uCharge * 0.05 * sin(uTime * 0.45);
   float satL = mix(0.55, 1.0, uCharge) + breathe;
   float intenL = mix(0.6, 1.0, uCharge) + breathe;
   float lumE = dot(energy, vec3(0.299, 0.587, 0.114));
   energy = mix(vec3(lumE), energy, satL) * intenL;
 
-  // SOLID BLACK gap: kill all light across the full divider width (wider than
-  // the DOM ribbon incl. its torn edges) so the seam is one clean black gap.
+  // kill all light where the ink dividers sit => the seams stay pure black
   float gap = min(smoothstep(0.014, 0.024, abs(sdL)), smoothstep(0.014, 0.024, abs(sdR)));
   energy *= gap;
 
-  // Calmer for reduced-motion.
+  // reduced motion => everything chills out
   energy *= (1.0 - 0.45 * uReduced);
 
   float lum = clamp(dot(energy, vec3(0.33)), 0.0, 1.0);
@@ -120,7 +119,7 @@ void main() {
 }
 `;
 
-// --- Particles (Layer B): drifting glowing orbs + seam sparks, additive ---
+// the particles => little glowing orbs drifting up, twinkling as they go
 export const PARTICLE_VERT = /* glsl */ `
 attribute vec3 aColor;
 attribute vec2 aVel;
@@ -135,7 +134,7 @@ varying float vAlpha;
 
 void main() {
   vec2 pos = position.xy + aVel * uTime;
-  // wrap back into the band
+  // floated off the edge? => wrap around and come back from the other side
   pos = mod(pos + 1.0, 2.0) - 1.0;
   gl_Position = vec4(pos, 0.0, 1.0);
 
@@ -146,6 +145,7 @@ void main() {
 }
 `;
 
+// each particle is drawn as a soft round glow => bright middle, fades at the edge
 export const PARTICLE_FRAG = /* glsl */ `
 precision mediump float;
 varying vec3 vColor;

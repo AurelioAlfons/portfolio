@@ -54,12 +54,12 @@ const config = {
   BLOOM_SOFT_KNEE: 0.7,
 };
 
-// Section-driven color theme, set via postMessage from the parent page.
-// themePalette stays null (fully random rainbow splats, original behavior)
-// until a theme message arrives.
+// our tweak => the site tells us which section you're in and we recolor the fluid.
+// themePalette stays null (random rainbow, the original look) until a message lands
 let backColorTarget = { ...config.BACK_COLOR };
 let themePalette = null;
 
+// listens for the theme message from the main page (we live in an iframe)
 window.addEventListener("message", (event) => {
   const data = event.data;
   if (!data || data.type !== "fluid-theme") return;
@@ -953,6 +953,7 @@ function updateColors(dt) {
   }
 }
 
+// our tweak => ease the background toward the section's color instead of snapping
 function updateBackColor(dt) {
   const ease = Math.min(dt * 1.5, 1);
   config.BACK_COLOR.r += (backColorTarget.r - config.BACK_COLOR.r) * ease;
@@ -1301,6 +1302,8 @@ function correctDeltaY(delta) {
   return delta;
 }
 
+// our tweak => splat colors come from the section's palette if one is set,
+// otherwise it's the classic random rainbow
 function generateColor() {
   let c;
 

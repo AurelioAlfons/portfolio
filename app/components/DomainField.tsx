@@ -1,5 +1,7 @@
 "use client";
 
+// the webgl energy canvas => paints the three flowing color fields + the
+// floating particles that sit over the carousel panels
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
@@ -13,7 +15,7 @@ import {
 
 type Quality = "high" | "low";
 
-// Slot palette (fixed by position): blue / magenta+white / green.
+// each slot owns a color => left is always blue, center magenta, right green
 const COL_L = new THREE.Color(0.2, 0.65, 1.0);
 const COL_C = new THREE.Color(1.0, 0.25, 0.65);
 const COL_C_HI = new THREE.Color(1.0, 0.95, 0.98);
@@ -31,7 +33,7 @@ function seamAt(uy: number, i: number, seams: Seam[]) {
   return seams[i].top + (seams[i].bot - seams[i].top) * (1 - uy);
 }
 
-// Deterministic PRNG so the particle field is stable across renders.
+// seeded random => same "random" particles every render, no flicker on remount
 function mulberry32(seed: number) {
   let a = seed;
   return () => {
@@ -42,6 +44,7 @@ function mulberry32(seed: number) {
   };
 }
 
+// builds all the particles once => position, color, drift speed, size, twinkle seed
 function buildParticles(count: number, seams: Seam[]): THREE.BufferGeometry | null {
   if (count === 0) return null;
   const rand = mulberry32(1337);
@@ -105,7 +108,7 @@ function buildParticles(count: number, seams: Seam[]): THREE.BufferGeometry | nu
   return geo;
 }
 
-// Energy quad + particles, animated in one R3F scene.
+// the actual scene => one big quad running the energy shader + the particle cloud
 function FieldScene({
   quality,
   reduced,
@@ -119,6 +122,7 @@ function FieldScene({
   active: boolean;
   seams: Seam[];
 }) {
+  // phones get less noise detail and fewer particles => keeps the fps up
   const octaves = quality === "low" ? 3 : 5;
   const count = reduced ? 0 : quality === "low" ? 55 : 170;
 
@@ -151,7 +155,7 @@ function FieldScene({
     [octaves, reduced]
   );
 
-  // Keep the shader's seams aligned to the measured (mirrored) ink strokes.
+  // seams moved (window resized) => tell the shader so its gaps stay under the ink
   useEffect(() => {
     const e = energyRef.current;
     if (!e) return;
@@ -166,19 +170,18 @@ function FieldScene({
     []
   );
 
+  // runs every frame => ticks the clock and feeds the shader its numbers
   useFrame((_, delta) => {
     if (reduced) return;
     const d = Math.min(delta, 0.05);
-    // Trigger a surge when the swap counter changes, then decay it (~0.55s).
-    // A swap also restarts the charge-up ramp (matches the DOM zoom/saturate).
+    // swap happened => kick the surge to full, then let it fade out (~half a sec)
     if (surge !== lastSurge.current) {
       surgeVal.current = 1;
       lastSurge.current = surge;
       chargeT.current = 0;
     }
     if (surgeVal.current > 0) surgeVal.current = Math.max(0, surgeVal.current - d / 0.55);
-    // Charge-up: restart the power-up ramp each time the section enters view.
-    // Duration matches the 5.6s image zoom/saturation charge-up.
+    // the charge-up => energy goes dim -> full over 5.6s, same timing as the image zoom
     if (active && !wasActive.current) chargeT.current = 0;
     wasActive.current = active;
     chargeT.current += d;
@@ -225,8 +228,7 @@ function FieldScene({
   );
 }
 
-// Low tier renders on demand at ~30fps: an interval requests each frame
-// instead of the default 60fps loop.
+// phone mode => instead of the full 60fps loop we ask for a frame every 33ms (~30fps)
 function Throttle30({ active }: { active: boolean }) {
   const invalidate = useThree((s) => s.invalidate);
   useEffect(() => {
@@ -237,6 +239,7 @@ function Throttle30({ active }: { active: boolean }) {
   return null;
 }
 
+// can this browser even do webgl? => if not we just skip the whole canvas
 function checkWebGL(): boolean {
   if (typeof document === "undefined") return false;
   try {
@@ -262,8 +265,8 @@ export default function DomainField({
 }) {
   const [supported] = useState(checkWebGL);
   const [lost, setLost] = useState(false);
-  // Graceful fallback (unsupported or context lost): render nothing — the
-  // graded Stage-1 panels remain, so the band is never blank/broken.
+  // no webgl or the gpu bailed => just render nothing, the tinted panels
+  // underneath still look fine so the section never breaks
   if (!supported || lost) return null;
 
   const low = quality === "low";
@@ -271,8 +274,8 @@ export default function DomainField({
   return (
     <Canvas
       className="twd-field"
-      // Off-screen: paused. Reduced motion: one calm static frame.
-      // Low tier: demand-driven ~30fps (see Throttle30). High: 60fps loop.
+      // scrolled away => stop rendering. reduced motion => one calm frame.
+      // phones => ~30fps via Throttle30. desktop => full 60fps loop
       frameloop={reduced || low ? "demand" : active ? "always" : "never"}
       dpr={low ? 0.75 : [1, 1.5]}
       gl={{ alpha: true, antialias: false, powerPreference: "high-performance" }}
