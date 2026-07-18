@@ -4,6 +4,8 @@
 // black ink dividers between them and the webgl energy glowing over everything
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { animate, motion } from "motion/react";
+// aliased => this file already has motion/react's own `animate` for the zoom charge-up
+import { animate as animeText, scrambleText } from "animejs";
 import { TECH, type TechKey } from "../lib/techIcons";
 import { mirroredSeams, SEAMS, type Seam, type ShardRole } from "./domainShards";
 import DomainField from "./DomainField";
@@ -49,6 +51,8 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
   const [seams, setSeams] = useState<Seam[]>(SEAMS);
   const movedRef = useRef(false);
   const bandRef = useRef<HTMLDivElement | null>(null);
+  const titleRef = useRef<HTMLHeadingElement | null>(null);
+  const firstTitleRender = useRef(true);
 
   // check reduced-motion + decide phone or desktop quality
   useEffect(() => {
@@ -126,6 +130,18 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
     );
     return () => controls.forEach((c) => c.stop());
   }, [zoomId, reduced]);
+
+  // caption title scramble-decode => skip the very first render (that's the
+  // intro fade's job), only plays on actual swaps. reads the title straight
+  // off the DOM, so no need to pass the string in ourselves
+  useEffect(() => {
+    if (firstTitleRender.current) {
+      firstTitleRender.current = false;
+      return;
+    }
+    if (reduced || !titleRef.current) return;
+    animeText(titleRef.current, { innerHTML: scrambleText() });
+  }, [selected, reduced]);
 
   if (n === 0) return null;
 
@@ -322,7 +338,7 @@ export default function ThreeWayDomain({ projects }: { projects: Project[] }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: reduced ? 0 : 0.3, ease: "easeOut" }}
       >
-        <h3 className="twd-title">{current.title}</h3>
+        <h3 ref={titleRef} className="twd-title">{current.title}</h3>
         <p className="twd-desc">{current.description}</p>
         <div className="twd-chips">
           {current.tech.map((k) => (

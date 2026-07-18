@@ -1,9 +1,12 @@
 "use client";
 
 // the projects section => heading up top, the three-way domain carousel below
+import { useRef } from "react";
 import { motion } from "motion/react";
 import ThreeWayDomain, { type Project } from "./ThreeWayDomain";
 import { setFluidTheme } from "../lib/fluidTheme";
+import { useReducedMotion } from "../lib/useReducedMotion";
+import { useLineWipeReveal } from "../lib/useLineWipeReveal";
 
 // the projects list => add a new one here and the carousel just picks it up
 const projects: Project[] = [
@@ -43,24 +46,24 @@ const projects: Project[] = [
 ];
 
 export default function ProjectSection() {
+  const headingRef = useRef<HTMLHeadingElement | null>(null);
+  const reduced = useReducedMotion();
+  useLineWipeReveal(headingRef, reduced);
+
   return (
     <motion.section
       id="projects"
       // scrolled here => switch the fluid bg to the cool projects colors
       onViewportEnter={() => setFluidTheme("projects")}
       viewport={{ once: false, amount: 0.35 }}
-      className="twd-section relative z-20000 text-white"
+      // z-20000 was dead weight => .twd-band already isolates its own stacking
+      // context, and nothing else on the page overlaps this section anyway
+      className="twd-section text-plate"
     >
       <div className="twd-heading">
-        <motion.h2
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="text-4xl font-bold md:text-5xl"
-        >
+        <h2 ref={headingRef} className="text-4xl font-bold md:text-5xl">
           Project Showcase
-        </motion.h2>
+        </h2>
       </div>
 
       <ThreeWayDomain projects={projects} />

@@ -3,5 +3,13 @@
     "**/.git/info/exclude": "ignore",
     "**/.git/**/gitignore": "ignore",
     ".gitignore": "ignore"
+  },
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": false,
+  "explorer.fileNesting.patterns": {
+    "package.json": "package-lock.json",
+    "next.config.ts": "tsconfig.json, next-env.d.ts, postcss.config.mjs, eslint.config.mjs",
+    "Dockerfile": "docker-compose.yml, .dockerignore",
+    ".env.example": ".env.local"
   }
 }

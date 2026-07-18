@@ -1,14 +1,39 @@
 @import "tailwindcss";
 
+/* hazard-mecha token system => every color/font on the site reads off these,
+   not copy-pasted magic strings per component */
+@theme {
+  --color-accent: #ffc300; /* Signal Amber, the primary accent */
+  --color-accent-hover: #ffd400; /* Amber's own hover/pressed state, not a rival color */
+  --color-secondary: #39e35a; /* System Green, reused from the shipped Projects palette */
+  --color-alert: #e8341c; /* Hazard Red, for warning/alert accents */
+  --color-plate: #f0ede4; /* Plate White, primary text */
+  --color-muted: #8c8884; /* Steel Gray, the one muted-text tone site-wide */
+
+  --font-display: var(--font-space-grotesk);
+  --font-body: var(--font-plus-jakarta);
+  --font-mono: var(--font-geist-mono); /* overrides tailwind's default mono stack site-wide */
+}
+
 html {
   scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
-  background: #08080c;
-  color: white;
-  font-family: Arial, Helvetica, sans-serif;
+  background: #000; /* Chassis Black, pure black on purpose => industrial panel read */
+  color: var(--color-plate);
+  font-family: var(--font-body), Arial, Helvetica, sans-serif;
+}
+
+/* display face on every heading => one line instead of per-component overrides */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display), var(--font-body), Arial, Helvetica, sans-serif;
 }
 
 /* Floating animation (keep if you still use it somewhere) */

@@ -26,7 +26,7 @@
 }
 
 .twd-root:focus-visible {
-  outline: 2px solid #7f31fd;
+  outline: 2px solid var(--color-accent);
   outline-offset: 4px;
 }
 
@@ -351,7 +351,8 @@
 .twd-title {
   font-size: clamp(22px, 3vw, 30px);
   font-weight: 700;
-  color: #fff;
+  /* it's an h3 => already gets the display font from globals.css's heading rule */
+  color: var(--color-plate);
 }
 
 .twd-desc {
@@ -359,7 +360,8 @@
   max-width: 640px;
   font-size: 15px;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.66);
+  /* one muted-text token site-wide now, not a raw white-alpha */
+  color: var(--color-muted);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -384,7 +386,8 @@
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(255, 255, 255, 0.05);
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.85);
+  font-family: var(--font-mono);
+  color: var(--color-muted);
 }
 
 .twd-chip-icon {
@@ -397,8 +400,9 @@
   margin-top: 16px;
   padding: 12px 22px;
   border-radius: 999px;
-  background: #7f31fd;
-  color: #fff;
+  background: var(--color-accent);
+  /* amber bg needs dark text now, not the white that worked on the old purple */
+  color: #000;
   font-size: 15px;
   font-weight: 600;
 }

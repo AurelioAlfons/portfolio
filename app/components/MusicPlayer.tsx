@@ -12,19 +12,19 @@ export default function MusicPlayer() {
       className="pointer-events-auto flex h-full flex-col justify-center rounded-3xl border border-white/10 bg-black/55 p-4 shadow-2xl backdrop-blur-md"
     >
 
-      <p className="text-sm uppercase tracking-[0.3em] text-gray-400 px-4 pt-4">
+      <p className="font-mono text-sm uppercase tracking-[0.3em] text-muted px-4 pt-4">
         Now Playing
       </p>
 
-      {/* spotify handles the actual playing => we just embed it */}
-      <div className="mt-4 h-85 w-full overflow-hidden rounded-2xl sm:h-105 md:h-125">
+      {/* spotify handles the actual playing => was eyeballed odd heights (h-85/105/125), snapped to a clean rhythm */}
+      <div className="mt-4 h-80 w-full overflow-hidden rounded-3xl sm:h-96 md:h-112">
         <iframe
           src="https://open.spotify.com/embed/playlist/0B56I3kjyQNylz8s6bjFUy?utm_source=generator&theme=0"
           width="100%"
           height="100%"
           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
           loading="lazy"
-          className="pointer-events-auto rounded-2xl"
+          className="pointer-events-auto rounded-3xl"
         />
       </div>
 
